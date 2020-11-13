@@ -19,61 +19,52 @@
 ;;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(import (scheme base))
-(import (scheme write))
-(import (srfi 178))
+(import (chicken base)
+        (srfi 178))
 
-(cond-expand
-  ((library (srfi 78))
-   (import (srfi 78)))
-  (else
-    (begin
-      (define *tests-failed* 0)
-      (define-syntax check
-        (syntax-rules (=>)
-          ((check expr => expected)
-           (if (equal? expr expected)
-             (begin
-               (display 'expr)
-               (display " => ")
-               (display expected)
-               (display " ; correct")
-               (newline))
-             (begin
-               (set! *tests-failed* (+ *tests-failed* 1))
-               (display "FAILED: for ")
-               (display 'expr)
-               (display " expected ")
-               (display expected)
-               (display " but got ")
-               (display expr)
-               (newline))))))
-      (define (check-report)
-        (if (zero? *tests-failed*)
-            (begin
-             (display "All tests passed.")
-             (newline))
-            (begin
-             (display "TESTS FAILED: ")
-             (display *tests-failed*)
-             (newline)))))))
+(define *tests-failed* 0)
 
-(cond-expand
-  ((library (srfi 158))
-   (import (only (srfi 158) generator-for-each generator->list)))
-  (else
-   (begin
-    (define (generator-for-each proc g)
-      (let ((v (g)))
-        (unless (eof-object? v)
-          (proc v)
-          (generator-for-each proc g))))
+(define-syntax check
+  (syntax-rules (=>)
+    ((check expr => expected)
+     (if (equal? expr expected)
+       (begin
+         (display 'expr)
+         (display " => ")
+         (display expected)
+         (display " ; correct")
+         (newline))
+       (begin
+         (set! *tests-failed* (+ *tests-failed* 1))
+         (display "FAILED: for ")
+         (display 'expr)
+         (display " expected ")
+         (display expected)
+         (display " but got ")
+         (display expr)
+         (newline))))))
 
-    (define (generator->list g)
-      (let ((v (g)))
-        (if (eof-object? v)
-            '()
-            (cons v (generator->list g))))))))
+(define (check-report)
+  (if (zero? *tests-failed*)
+      (begin
+       (display "All tests passed.")
+       (newline)
+       (exit 0))
+      (begin
+       (error "TESTS FAILED" *tests-failed*)
+       (exit 1))))
+
+(define (generator-for-each proc g)
+  (let ((v (g)))
+    (unless (eof-object? v)
+      (proc v)
+      (generator-for-each proc g))))
+
+(define (generator->list g)
+  (let ((v (g)))
+    (if (eof-object? v)
+        '()
+        (cons v (generator->list g)))))
 
 (define (print-header message)
   (newline)
@@ -84,8 +75,6 @@
 ;;;; Utility
 
 (define (proc-or a b) (or a b))
-
-(define (constantly x) (lambda (_) x))
 
 (define bitvector= bitvector=?)
 
