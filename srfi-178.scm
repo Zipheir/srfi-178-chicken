@@ -73,7 +73,6 @@
 
   (import (scheme)
           (chicken base)
-          (only (r7rs) vector-map eof-object floor-remainder)
           (srfi 151)
           (srfi 160 base) ; temporary
           (srfi 160 u8))
@@ -86,6 +85,7 @@
               (else (vector-set! res i (f i))
                     (lp (+ i 1)))))))
 
+  (include "r7rs-shim.scm")
   (include "178/macros.scm")
   (include "178/convert.scm")
   (include "178/fields.scm")
