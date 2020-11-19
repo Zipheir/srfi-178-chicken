@@ -193,18 +193,18 @@
 (define bitvector-copy!
   (case-lambda
     ((to at from)
-     (u8vector-copy! (U to) at (U from)))
+     (u8vector-copy! (U to) at (U from) 0 (bitvector-length from)))
     ((to at from start)
-     (u8vector-copy! (U to) at (U from) start))
+     (u8vector-copy! (U to) at (U from) start (bitvector-length from)))
     ((to at from start end)
      (u8vector-copy! (U to) at (U from) start end))))
 
 (define bitvector-reverse-copy!
   (case-lambda
     ((to at from)
-     (u8vector-reverse-copy! (U to) at (U from)))
+     (u8vector-reverse-copy! (U to) at (U from) 0 (bitvector-length from)))
     ((to at from start)
-     (u8vector-reverse-copy! (U to) at (U from) start))
+     (u8vector-reverse-copy! (U to) at (U from) start (bitvector-length from)))
     ((to at from start end)
      (u8vector-reverse-copy! (U to) at (U from) start end))))
 
