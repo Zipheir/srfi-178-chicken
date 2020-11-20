@@ -4,6 +4,6 @@
  (category data)
  (license "MIT")
  (version "0.1")
- (dependencies srfi-151 srfi-160)
+ (dependencies srfi-151 srfi-160 srfi-141)
  (components
   (extension srfi-178)))

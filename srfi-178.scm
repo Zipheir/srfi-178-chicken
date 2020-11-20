@@ -73,6 +73,7 @@
 
   (import (scheme)
           (chicken base)
+          (only (srfi 141) floor-remainder)
           (srfi 151)
           (srfi 160 base) ; temporary
           (srfi 160 u8))
