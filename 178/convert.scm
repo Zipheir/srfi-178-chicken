@@ -1,9 +1,12 @@
 ;;;; Bit conversions
 
+(: bit->integer (bit --> fixnum))
 (define (bit->integer bit) (I bit))
 
+(: bit->integer (bit --> boolean))
 (define (bit->boolean bit) (B bit))
 
+(: bitvector->string (bitvector --> string))
 (define (bitvector->string bvec)
   (let loop ((i (- (bitvector-length bvec) 1))
              (r '()))
@@ -12,6 +15,7 @@
       (loop (- i 1)
             (cons (if (bitvector-ref/bool bvec i) #\1 #\0) r)))))
 
+(: string->bitvector (string -> bitvector))
 (define (string->bitvector str)
   (call/cc
    (lambda (return)
@@ -30,9 +34,11 @@
 
 ;;;; Bitvector/integer conversions
 
+(: bitvector->integer (bitvector --> fixnum))
 (define (bitvector->integer bvec)
   (bitvector-fold-right/int (lambda (r b) (+ (* r 2) b)) 0 bvec))
 
+(: integer->bitvector (fixnum #!optional fixnum -> bitvector))
 (define integer->bitvector
   (case-lambda
     ((int) (integer->bitvector int (integer-length int)))
@@ -45,6 +51,8 @@
 
 ;;; Additional vector conversions
 
+(: reverse-vector->bitvector
+   ((vector-of bit) #!optional fixnum fixnum -> bitvector))
 (define reverse-vector->bitvector
   (case-lambda
     ((vec) (reverse-vector->bitvector vec 0 (vector-length vec)))
@@ -55,6 +63,8 @@
         (vector-ref vec (- end 1 i)))
       (- end start)))))
 
+(: reverse-bitvector->vector/int
+   (bitvector #!optional fixnum fixnum -> (vector-of fixnum)))
 (define reverse-bitvector->vector/int
   (case-lambda
     ((bvec)
@@ -67,6 +77,8 @@
                         (u8vector-ref u8vec (- end 1 i)))
                       (- end start))))))
 
+(: reverse-bitvector->vector/bool
+   (bitvector #!optional fixnum fixnum -> (vector-of boolean)))
 (define reverse-bitvector->vector/bool
   (case-lambda
     ((bvec)

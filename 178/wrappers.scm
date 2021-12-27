@@ -1,62 +1,80 @@
 ;;;; SRFI 178 procedures that are just wrappers
 
+(: make-bitvector (fixnum #!optional bit -> bitvector))
 (define make-bitvector
   (case-lambda
     ((size) (W (make-u8vector size)))
     ((size bit) (W (make-u8vector size (I bit))))))
 
+(: bitvector-copy (bitvector #!optional fixnum fixnum -> bitvector))
 (define bitvector-copy
   (case-lambda
     ((bvec) (W (u8vector-copy (U bvec))))
     ((bvec start) (W (u8vector-copy (U bvec) start)))
     ((bvec start end) (W (u8vector-copy (U bvec) start end)))))
 
+(: bitvector-reverse-copy
+   (bitvector #!optional fixnum fixnum -> bitvector))
 (define bitvector-reverse-copy
   (case-lambda
     ((bvec) (W (u8vector-reverse-copy (U bvec))))
     ((bvec start) (W (u8vector-reverse-copy (U bvec) start)))
     ((bvec start end) (W (u8vector-reverse-copy (U bvec) start end)))))
 
+(: bitvector-append (#!rest bitvector -> bitvector))
 (define (bitvector-append . bvecs)
   (bitvector-concatenate bvecs))
 
+(: bitvector-concatenate ((list-of bitvector) -> bitvector))
 (define (bitvector-concatenate bvecs)
   (W (u8vector-concatenate (map U bvecs))))
 
+(: bitvector-append-subbitvectors (#!rest * -> bitvector))
 (define (bitvector-append-subbitvectors . args)
   (W (apply u8vector-append-subvectors
             (map (lambda (x) (if (bitvector? x) (U x) x)) args))))
 
+(: bitvector-empty? (bitvector -> boolean))
 (define (bitvector-empty? bvec)
   (eqv? 0 (u8vector-length (U bvec))))
 
+(: bitvector=? (#!rest bitvector -> boolean))
 (define (bitvector=? . bvecs)
   (apply u8vector= (map U bvecs)))
 
+(: bitvector-ref/int (bitvector fixnum -> fixnum))
 (define (bitvector-ref/int bvec i)
   (u8vector-ref (U bvec) i))
 
+(: bitvector-ref/bool (bitvector fixnum -> boolean))
 (define (bitvector-ref/bool bvec i)
   (B (u8vector-ref (U bvec) i)))
 
+(: bitvector-length (bitvector -> fixnum))
 (define (bitvector-length bvec)
   (u8vector-length (U bvec)))
 
+(: bitvector-take (bitvector fixnum -> bitvector))
 (define (bitvector-take bvec n)
   (W (u8vector-take (U bvec) n)))
 
+(: bitvector-take-right (bitvector fixnum -> bitvector))
 (define (bitvector-take-right bvec n)
   (W (u8vector-take-right (U bvec) n)))
 
+(: bitvector-drop (bitvector fixnum -> bitvector))
 (define (bitvector-drop bvec n)
   (W (u8vector-drop (U bvec) n)))
 
+(: bitvector-drop-right (bitvector fixnum -> bitvector))
 (define (bitvector-drop-right bvec n)
   (W (u8vector-drop-right (U bvec) n)))
 
+(: bitvector-segment (bitvector fixnum -> (list-of bitvector)))
 (define (bitvector-segment bvec n)
   (map W (u8vector-segment (U bvec) n)))
 
+(: bitvector-fold/int (procedure * #!rest bitvector -> *))
 (define bitvector-fold/int
   (case-lambda
     ((kons knil bvec)
@@ -64,6 +82,7 @@
     ((kons knil . bvecs)
      (apply u8vector-fold kons knil (map U bvecs)))))
 
+(: bitvector-fold/bool (procedure * #!rest bitvector -> *))
 (define bitvector-fold/bool
   (case-lambda
     ((kons knil bvec)
@@ -77,6 +96,7 @@
             knil
             (map U bvecs)))))
 
+(: bitvector-fold-right/int (procedure * #!rest bitvector -> *))
 (define bitvector-fold-right/int
   (case-lambda
     ((kons knil bvec)
@@ -84,6 +104,7 @@
     ((kons knil . bvecs)
      (apply u8vector-fold-right kons knil (map U bvecs)))))
 
+(: bitvector-fold-right/bool (procedure * #!rest bitvector -> *))
 (define bitvector-fold-right/bool
   (case-lambda
     ((kons knil bvec)
@@ -97,6 +118,7 @@
             knil
             (map U bvecs)))))
 
+(: bitvector-map/int (procedure #!rest bitvector -> bitvector))
 (define bitvector-map/int
   (case-lambda
     ((f bvec)
@@ -115,6 +137,7 @@
        (f (u8vector-ref u8vec1 i) (u8vector-ref u8vec2 i)))
      (bitvector-length bvec1))))
 
+(: bitvector-map/bool (procedure #!rest bitvector -> bitvector))
 (define bitvector-map/bool
   (case-lambda
     ((f bvec)          ; one-bitvector fast path
@@ -126,6 +149,7 @@
                (lambda ns (I (apply f (map bit->boolean ns))))
                (map U bvecs))))))
 
+(: bitvector-map!/int (procedure #!rest bitvector -> bitvector))
 (define bitvector-map!/int
   (case-lambda
     ((f bvec)
@@ -147,6 +171,7 @@
         (lp (+ i 1))))
     bvec1))
 
+(: bitvector-map!/bool (procedure #!rest bitvector -> bitvector))
 (define bitvector-map!/bool
   (case-lambda
     ((f bvec)          ; one-bitvector fast path
@@ -158,6 +183,7 @@
             (lambda ns (I (apply f (map bit->boolean ns))))
             (map U bvecs)))))
 
+(: bitvector-for-each/int (procedure #!rest bitvector -> undefined))
 (define bitvector-for-each/int
   (case-lambda
     ((f bvec)
@@ -165,6 +191,7 @@
     ((f . bvecs)
      (apply u8vector-for-each f (map U bvecs)))))
 
+(: bitvector-for-each/bool (procedure #!rest bitvector -> undefined))
 (define bitvector-for-each/bool
   (case-lambda
     ((f bvec)
@@ -174,13 +201,16 @@
             (lambda ns (apply f (map bit->boolean ns)))
             (map U bvecs)))))
 
+(: bitvector-set! (bitvector fixnum bit -> undefined))
 (define (bitvector-set! bvec i bit)
   (u8vector-set! (U bvec) i (I bit)))
 
+(: bitvector-swap! (bitvector fixnum fixnum -> undefined))
 (define (bitvector-swap! bvec i j)
   (u8vector-swap! (U bvec) i j))
 
 
+(: bitvector-reverse! (bitvector #!optional fixnum fixnum -> undefined))
 (define bitvector-reverse!
   (case-lambda
     ((bvec)
@@ -190,6 +220,8 @@
     ((bvec start end)
      (u8vector-reverse! (U bvec) start end))))
 
+(: bitvector-copy!
+   (bitvector fixnum bitvector #!optional fixnum fixnum -> undefined))
 (define bitvector-copy!
   (case-lambda
     ((to at from)
@@ -199,6 +231,8 @@
     ((to at from start end)
      (u8vector-copy! (U to) at (U from) start end))))
 
+(: bitvector-reverse-copy!
+   (bitvector fixnum bitvector #!optional fixnum fixnum -> undefined))
 (define bitvector-reverse-copy!
   (case-lambda
     ((to at from)
@@ -208,6 +242,7 @@
     ((to at from start end)
      (u8vector-reverse-copy! (U to) at (U from) start end))))
 
+(: bitvector->list/int (bitvector fixnum fixnum -> (list-of fixnum)))
 (define bitvector->list/int
   (case-lambda
     ((bvec)
@@ -217,6 +252,7 @@
     ((bvec start end)
      (u8vector->list (U bvec) start end))))
 
+(: bitvector->list/bool (bitvector fixnum fixnum -> (list-of boolean)))
 (define bitvector->list/bool
   (case-lambda
     ((bvec)
@@ -226,6 +262,8 @@
     ((bvec start end)
      (map bit->boolean (u8vector->list (U bvec) start end)))))
 
+(: reverse-bitvector->list/int
+   (bitvector #!optional fixnum fixnum -> (list-of fixnum)))
 (define reverse-bitvector->list/int
   (case-lambda
     ((bvec)
@@ -235,6 +273,8 @@
     ((bvec start end)
      (reverse-u8vector->list (U bvec) start end))))
 
+(: reverse-bitvector->list/bool
+   (bitvector #!optional fixnum fixnum -> (list-of boolean)))
 (define reverse-bitvector->list/bool
   (case-lambda
     ((bvec)
@@ -244,6 +284,8 @@
     ((bvec start end)
      (map bit->boolean (reverse-u8vector->list (U bvec) start end)))))
 
+(: bitvector->vector/int
+   (bitvector #!optional fixnum fixnum -> (vector-of fixnum)))
 (define bitvector->vector/int
   (case-lambda
     ((bvec)
@@ -253,6 +295,8 @@
     ((bvec start end)
      (u8vector->vector (U bvec) start end))))
 
+(: bitvector->vector/bool
+   (bitvector #!optional fixnum fixnum -> (vector-of boolean)))
 (define bitvector->vector/bool
   (case-lambda
     ((bvec)
@@ -262,14 +306,19 @@
     ((bvec start end)
      (vector-map bit->boolean (u8vector->vector (U bvec) start end)))))
 
+(: list->bitvector ((list-of bit) -> bitvector))
 (define (list->bitvector list)
   (W (list->u8vector (map bit->integer list))))
 
+(: reverse-list->bitvector ((list-of bit) -> bitvector))
 (define (reverse-list->bitvector list)
   (W (reverse-list->u8vector (map bit->integer list))))
 
+(: bitvector (#!rest bit -> bitvector))
 (define (bitvector . bits) (list->bitvector bits))
 
+(: vector->bitvector
+   ((vector-of bit) #!optional fixnum fixnum -> bitvector))
 (define vector->bitvector
   (case-lambda
     ((vec)

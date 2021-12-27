@@ -73,6 +73,7 @@
 
   (import (scheme)
           (chicken base)
+          (chicken type)
           (only (srfi 141) floor-remainder)
           (srfi 151)
           (srfi 160 base) ; temporary
@@ -85,6 +86,9 @@
         (cond ((= i len) res)
               (else (vector-set! res i (f i))
                     (lp (+ i 1)))))))
+
+  (define-type bit (or boolean fixnum))
+  (define-type bitvector u8vector)
 
   (include "r7rs-shim.scm")
   (include "178/macros.scm")
