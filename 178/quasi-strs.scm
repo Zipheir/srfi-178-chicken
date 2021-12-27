@@ -1,3 +1,4 @@
+(: bitvector-prefix-length (bitvector bitvector --> fixnum))
 (define (bitvector-prefix-length bvec1 bvec2)
   (let ((end (min (bitvector-length bvec1) (bitvector-length bvec2))))
     (if (eqv? bvec1 bvec2)
@@ -9,6 +10,7 @@
               i
               (lp (+ i 1)))))))
 
+(: bitvector-suffix-length (bitvector bitvector --> fixnum))
 (define (bitvector-suffix-length bvec1 bvec2)
   (let ((end1 (bitvector-length bvec1))
         (end2 (bitvector-length bvec2)))
@@ -23,16 +25,19 @@
                 (- (- end1 i) 1)
                 (lp (- i 1) (- j 1))))))))
 
+(: bitvector-prefix? (bitvector bitvector --> boolean))
 (define (bitvector-prefix? bvec1 bvec2)
   (let ((len1 (bitvector-length bvec1)))
     (and (<= len1 (bitvector-length bvec2))
          (= (bitvector-prefix-length bvec1 bvec2) len1))))
 
+(: bitvector-suffix? (bitvector bitvector --> boolean))
 (define (bitvector-suffix? bvec1 bvec2)
   (let ((len1 (bitvector-length bvec1)))
     (and (<= len1 (bitvector-length bvec2))
          (= (bitvector-suffix-length bvec1 bvec2) len1))))
 
+(: bitvector-pad (bit bitvector fixnum -> bitvector))
 (define (bitvector-pad bit bvec len)
   (let ((old-len (bitvector-length bvec)))
     (if (<= len old-len)
@@ -41,6 +46,7 @@
           (bitvector-copy! result (- len old-len) bvec)
           result))))
 
+(: bitvector-pad-right (bit bitvector fixnum -> bitvector))
 (define (bitvector-pad-right bit bvec len)
   (if (<= len (bitvector-length bvec))
       bvec
@@ -48,6 +54,7 @@
         (bitvector-copy! result 0 bvec)
         result)))
 
+(: %bitvector-skip (bitvector bit --> (or fixnum false)))
 (define (%bitvector-skip bvec bit)
   (let ((len (bitvector-length bvec))
         (int (bit->integer bit)))
@@ -57,6 +64,7 @@
                (lp (+ i 1))
                i)))))
 
+(: %bitvector-skip-right (bitvector bit -> (or fixnum false)))
 (define (%bitvector-skip-right bvec bit)
   (let ((len (bitvector-length bvec))
         (int (bit->integer bit)))
@@ -66,18 +74,21 @@
                (lp (- i 1))
                i)))))
 
+(: bitvector-trim (bit bitvector -> bitvector))
 (define (bitvector-trim bit bvec)
   (cond ((%bitvector-skip bvec bit) =>
          (lambda (skip)
            (bitvector-copy bvec skip (bitvector-length bvec))))
         (else (bitvector))))
 
+(: bitvector-trim-right (bit bitvector -> bitvector))
 (define (bitvector-trim-right bit bvec)
   (cond ((%bitvector-skip-right bvec bit) =>
          (lambda (skip)
            (bitvector-copy bvec 0 (+ skip 1))))
         (else (bitvector))))
 
+(: bitvector-trim-both (bit bitvector -> bitvector))
 (define (bitvector-trim-both bit bvec)
   (cond ((%bitvector-skip bvec bit) =>
          (lambda (skip)
