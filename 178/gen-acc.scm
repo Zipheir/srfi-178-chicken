@@ -8,12 +8,15 @@
             (set! i (+ i 1))
             r)))))
 
+(: make-bitvector/int-generator (bitvector -> procedure))
 (define (make-bitvector/int-generator bvec)
   (%make-bitvector-generator bvec bitvector-ref/int))
 
+(: make-bitvector/bool-generator (bitvector -> procedure))
 (define (make-bitvector/bool-generator bvec)
   (%make-bitvector-generator bvec bitvector-ref/bool))
 
+(: make-bitvector-accumulator (-> procedure))
 (define (make-bitvector-accumulator)
   (let ((r '()))
     (lambda (x)
