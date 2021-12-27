@@ -88,7 +88,6 @@
                     (lp (+ i 1)))))))
 
   (define-type bit (or boolean fixnum))
-  (define-type bitvector u8vector)
 
   (include "r7rs-shim.scm")
   (include "178/macros.scm")

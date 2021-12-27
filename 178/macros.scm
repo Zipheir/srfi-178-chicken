@@ -8,6 +8,8 @@
   bitvector?
   (u8vec U))
 
+(define-type bitvector (struct <bitvector>))
+
 ;; Convert a bit to an integer
 (define-syntax I
   (syntax-rules ()
