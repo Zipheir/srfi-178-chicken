@@ -1,3 +1,5 @@
+(: bitvector-map->list/int
+   (procedure #!rest bitvector -> (list-of fixnum)))
 (define bitvector-map->list/int
   (case-lambda
     ((f bvec)                    ; fast path
@@ -10,6 +12,8 @@
             '()
             bvecs))))
 
+(: bitvector-map->list/bool
+   (procedure #!rest bitvector -> (list-of boolean)))
 (define bitvector-map->list/bool
   (case-lambda
     ((f bvec)                    ; fast path
