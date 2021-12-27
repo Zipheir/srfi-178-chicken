@@ -1,4 +1,4 @@
-(: u1-not (fixnum -> fixnum))
+(: u1-not (fixnum --> fixnum))
 (define (u1-not a)
   (- 1 a))
 
@@ -10,7 +10,7 @@
 (define (bitvector-not! avec)
   (bitvector-map!/int u1-not avec))
 
-(: u1-and (#!rest fixnum -> fixnum))
+(: u1-and (#!rest fixnum --> fixnum))
 (define (u1-and . args)
   (I (apply * args)))
 
@@ -22,7 +22,7 @@
 (define (bitvector-and!  . vecs)
   (apply bitvector-map!/int u1-and vecs))
 
-(: u1-ior (#!rest fixnum -> fixnum))
+(: u1-ior (#!rest fixnum --> fixnum))
 (define (u1-ior . args)
   (I (apply + args)))
 
@@ -34,7 +34,7 @@
 (define (bitvector-ior! . vecs)
   (apply bitvector-map!/int u1-ior vecs))
 
-(: u1-xor (#!rest fixnum -> fixnum))
+(: u1-xor (#!rest fixnum --> fixnum))
 (define (u1-xor . args)
   (I (odd? (apply + args))))
 
@@ -46,7 +46,7 @@
 (define (bitvector-xor! . vecs)
   (apply bitvector-map!/int u1-xor vecs))
 
-(: u1-eqv (#!rest fixnum -> fixnum))
+(: u1-eqv (#!rest fixnum --> fixnum))
 (define (u1-eqv . args)
   (let ((xor-value (apply u1-xor args)))
     (if (odd? (length args))
@@ -61,7 +61,7 @@
 (define (bitvector-eqv! . vecs)
   (apply bitvector-map!/int u1-eqv vecs))
 
-(: u1-nand (fixnum fixnum -> fixnum))
+(: u1-nand (fixnum fixnum --> fixnum))
 (define (u1-nand a b)
   (u1-not (u1-and a b)))
 
@@ -73,7 +73,7 @@
 (define (bitvector-nand! a b)
   (bitvector-map!/int u1-nand a b))
 
-(: u1-nor (fixnum fixnum -> fixnum))
+(: u1-nor (fixnum fixnum --> fixnum))
 (define (u1-nor a b)
   (u1-not (u1-ior a b)))
 
@@ -85,7 +85,7 @@
 (define (bitvector-nor! a b)
   (bitvector-map!/int u1-nor a b))
 
-(: u1-andc1 (fixnum fixnum -> fixnum))
+(: u1-andc1 (fixnum fixnum --> fixnum))
 (define (u1-andc1 a b)
   (u1-and (u1-not a) b))
 
@@ -97,7 +97,7 @@
 (define (bitvector-andc1! a b)
   (bitvector-map!/int u1-andc1 a b))
 
-(: u1-andc2 (fixnum fixnum -> fixnum))
+(: u1-andc2 (fixnum fixnum --> fixnum))
 (define (u1-andc2 a b)
   (u1-and a (u1-not b)))
 
@@ -109,7 +109,7 @@
 (define (bitvector-andc2! a b)
   (bitvector-map!/int u1-andc2 a b))
 
-(: u1-orc1 (fixnum fixnum -> fixnum))
+(: u1-orc1 (fixnum fixnum --> fixnum))
 (define (u1-orc1 a b)
   (u1-ior (u1-not a) b))
 
@@ -121,7 +121,7 @@
 (define (bitvector-orc1! a b)
   (bitvector-map!/int u1-orc1 a b))
 
-(: u1-orc2 (fixnum fixnum -> fixnum))
+(: u1-orc2 (fixnum fixnum --> fixnum))
 (define (u1-orc2 a b)
   (u1-ior a (u1-not b)))
 
