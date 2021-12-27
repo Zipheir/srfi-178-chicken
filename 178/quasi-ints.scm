@@ -1,3 +1,4 @@
+(: bitvector-logical-shift (bitvector fixnum bit -> bitvector))
 (define (bitvector-logical-shift bvec count bit)
   (cond ((positive? count)
          (%bitvector-left-shift bvec count (I bit)))
@@ -5,6 +6,7 @@
          (%bitvector-right-shift bvec (- count) (I bit)))
         (else bvec)))
 
+(: %bitvector-left-shift (bitvector fixnum fixnum -> bitvector))
 (define (%bitvector-left-shift bvec count bit)
   (let ((len (bitvector-length bvec)))
     (bitvector-unfold
@@ -13,6 +15,7 @@
          (if (< i* len) (bitvector-ref/int bvec i*) bit)))
      len)))
 
+(: %bitvector-right-shift (bitvector fixnum fixnum -> bitvector))
 (define (%bitvector-right-shift bvec count bit)
   (bitvector-unfold
    (lambda (i)
@@ -21,12 +24,14 @@
          (bitvector-ref/int bvec (- i count))))
    (bitvector-length bvec)))
 
+(: bitvector-count (bit bitvector --> fixnum))
 (define (bitvector-count bit bvec)
   (let ((int (I bit)))
     (bitvector-fold/int (lambda (n b) (if (= b int) (+ n 1) n))
                         0
                         bvec)))
 
+(: bitvector-count-run (bit bitvector fixnum --> fixnum))
 (define (bitvector-count-run bit bvec index)
   (let ((int (I bit))
         (len (bitvector-length bvec)))
@@ -35,6 +40,7 @@
           c
           (lp (+ i 1) (+ c 1))))))
 
+(: bitvector-if (bitvector bitvector bitvector -> bitvector))
 (define (bitvector-if if-bvec then-bvec else-bvec)
   (bitvector-map/bool (lambda (bit then-bit else-bit)
                         (if bit then-bit else-bit))
@@ -42,6 +48,7 @@
                       then-bvec
                       else-bvec))
 
+(: bitvector-first-bit (bit bitvector -> fixnum))
 (define (bitvector-first-bit bit bvec)
   (let ((int (I bit)) (len (bitvector-length bvec)))
     (let lp ((i 0))
