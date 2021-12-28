@@ -14,10 +14,9 @@
 (define-syntax I
   (syntax-rules ()
     ((I bit)
-     (cond
-       ((eqv? bit 0) 0)
-       ((not bit) 0)
-       (else 1)))))
+     (cond ((eqv? bit 0) 0)
+           ((not bit) 0)
+           (else 1)))))
 
 ;; Convert a bit to a bool
 (define-syntax B
