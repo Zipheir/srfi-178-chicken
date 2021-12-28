@@ -149,7 +149,7 @@
                (lambda ns (I (apply f (map bit->boolean ns))))
                (map U bvecs))))))
 
-(: bitvector-map!/int (procedure #!rest bitvector -> bitvector))
+(: bitvector-map!/int (procedure #!rest bitvector -> undefined))
 (define bitvector-map!/int
   (case-lambda
     ((f bvec)
@@ -171,7 +171,7 @@
         (lp (+ i 1))))
     bvec1))
 
-(: bitvector-map!/bool (procedure #!rest bitvector -> bitvector))
+(: bitvector-map!/bool (procedure #!rest bitvector -> undefined))
 (define bitvector-map!/bool
   (case-lambda
     ((f bvec)          ; one-bitvector fast path
