@@ -1,5 +1,4 @@
 (test-group "Selectors"
-
   (check (bitvector-length (bitvector))             => 0)
   (check (bitvector-length (bitvector 1 0 1 0))     => 4)
   (check (bitvector-ref/int (bitvector 1 0 1 0) 0)  => 1)

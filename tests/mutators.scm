@@ -1,5 +1,4 @@
 (test-group "Mutators"
-
   (let ((bvec (bitvector 1 0 1 0)))
     (check
      (bitvector= (begin (bitvector-set! bvec 1 1) bvec)

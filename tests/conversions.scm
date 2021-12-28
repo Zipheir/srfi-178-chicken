@@ -1,5 +1,4 @@
 (test-group "Bitvector conversions"
-
   ;;; lists
 
   (check (bitvector->list/int (bitvector))             => '())

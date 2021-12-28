@@ -1,5 +1,4 @@
 (test-group "Quasi-integral operations"
-
   (check (bitvector= (bitvector-logical-shift (bitvector 1 0 1 1) 2 0)
                      (bitvector 1 1 0 0))
    => #t)

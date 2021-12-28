@@ -1,5 +1,4 @@
 (test-group "Bit fields"
-
   (check (bitvector-field-any? (bitvector 0 1 0 0) 0 4) => #t)
   (check (bitvector-field-any? (bitvector 0 0 0 0) 0 4) => #f)
   (check (bitvector-field-any? (bitvector 0 1 0 0) 1 3) => #t)

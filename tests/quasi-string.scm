@@ -1,5 +1,4 @@
 (test-group "Quasi-string operations"
-
   ;;; prefix & suffix
 
   (check (bitvector-prefix-length (bitvector 1 0 0) (bitvector 1 0 1)) => 2)

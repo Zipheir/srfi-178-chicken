@@ -1,5 +1,4 @@
 (test-group "Iteration"
-
   ;;; take & take-right
 
   (check (bitvector= (bitvector-take (bitvector 1 0 1 0) 2)

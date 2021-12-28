@@ -1,5 +1,4 @@
 (test-group "Constructors"
-
   (check (bitvector-length (make-bitvector 8))                  => 8)
   (check (bitvector= (make-bitvector 4 0) (bitvector 0 0 0 0))  => #t)
   (check (bitvector= (make-bitvector 4 #t) (bitvector 1 1 1 1)) => #t)

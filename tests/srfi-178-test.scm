@@ -47,7 +47,6 @@
 (define bitvector= bitvector=?)
 
 (test-group "Bit conversions"
-
   (check (bit->integer 0)  => 0)
   (check (bit->integer 1)  => 1)
   (check (bit->integer #f) => 0)
@@ -58,7 +57,6 @@
   (check (bit->boolean #t) => #t))
 
 (test-group "Predicates"
-
   (check (bitvector? (bitvector))        => #t)
   (check (bitvector? (make-bitvector 1)) => #t)
 
