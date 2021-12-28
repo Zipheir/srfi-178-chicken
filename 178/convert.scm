@@ -15,7 +15,7 @@
       (loop (- i 1)
             (cons (if (bitvector-ref/bool bvec i) #\1 #\0) r)))))
 
-(: string->bitvector (string -> bitvector))
+(: string->bitvector (string -> (or bitvector false)))
 (define (string->bitvector str)
   (call/cc
    (lambda (return)
