@@ -1,5 +1,8 @@
 (: bitvector-field-any? (bitvector fixnum fixnum -> boolean))
 (define (bitvector-field-any? bvec start end)
+  (assert (bitvector? bvec))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (let lp ((i start))
     (and (< i end)
          (or (bitvector-ref/bool bvec i)
@@ -7,6 +10,9 @@
 
 (: bitvector-field-every? (bitvector fixnum fixnum -> boolean))
 (define (bitvector-field-every? bvec start end)
+  (assert (bitvector? bvec))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (let lp ((i start))
     (or (>= i end)
         (and (bitvector-ref/bool bvec i)
@@ -22,6 +28,9 @@
 
 (: bitvector-field-clear (bitvector fixnum fixnum -> bitvector))
 (define (bitvector-field-clear bvec start end)
+  (assert (bitvector? bvec))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (%bitvector-field-modify bvec 0 start end))
 
 (: %bitvector-fill!/int (bitvector fixnum fixnum fixnum -> undefined))
@@ -30,19 +39,32 @@
 
 (: bitvector-field-clear! (bitvector fixnum fixnum -> undefined))
 (define (bitvector-field-clear! bvec start end)
+  (assert (bitvector? bvec))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (%bitvector-fill!/int bvec 0 start end))
 
 (: bitvector-field-set (bitvector fixnum fixnum -> bitvector))
 (define (bitvector-field-set bvec start end)
+  (assert (bitvector? bvec))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (%bitvector-field-modify bvec 1 start end))
 
 (: bitvector-field-set! (bitvector fixnum fixnum -> undefined))
 (define (bitvector-field-set! bvec start end)
+  (assert (bitvector? bvec))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (%bitvector-fill!/int bvec 1 start end))
 
 (: bitvector-field-replace
    (bitvector bitvector fixnum fixnum -> bitvector))
 (define (bitvector-field-replace dest source start end)
+  (assert (bitvector? dest))
+  (assert (bitvector? source))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (bitvector-unfold
    (lambda (i)
      (if (and (>= i start) (< i end))
@@ -53,11 +75,19 @@
 (: bitvector-field-replace!
    (bitvector bitvector fixnum fixnum -> undefined))
 (define (bitvector-field-replace! dest source start end)
+  (assert (bitvector? dest))
+  (assert (bitvector? source))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (bitvector-copy! dest start source 0 (- end start)))
 
 (: bitvector-field-replace-same
    (bitvector bitvector fixnum fixnum -> bitvector))
 (define (bitvector-field-replace-same dest source start end)
+  (assert (bitvector? dest))
+  (assert (bitvector? source))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (bitvector-unfold
    (lambda (i)
      (bitvector-ref/int (if (and (>= i start) (< i end))
@@ -69,10 +99,18 @@
 (: bitvector-field-replace-same!
    (bitvector bitvector fixnum fixnum -> undefined))
 (define (bitvector-field-replace-same! dest source start end)
+  (assert (bitvector? dest))
+  (assert (bitvector? source))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (bitvector-copy! dest start source start end))
 
 (: bitvector-field-rotate (bitvector fixnum fixnum fixnum -> bitvector))
 (define (bitvector-field-rotate bvec count start end)
+  (assert (bitvector? bvec))
+  (assert (exact-integer? count))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (if (zero? count)
       bvec
       (let ((field-len (- end start)))
@@ -87,6 +125,9 @@
 
 (: bitvector-field-flip (bitvector fixnum fixnum -> bitvector))
 (define (bitvector-field-flip bvec start end)
+  (assert (bitvector? bvec))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (bitvector-unfold
    (lambda (i)
      (I (if (and (>= i start) (< i end))
@@ -96,6 +137,9 @@
 
 (: bitvector-field-flip! (bitvector fixnum fixnum -> undefined))
 (define (bitvector-field-flip! bvec start end)
+  (assert (bitvector? bvec))
+  (assert (exact-natural? start))
+  (assert (exact-natural? end))
   (let lp ((i start))
     (unless (>= i end)
       (bitvector-set! bvec i (not (bitvector-ref/bool bvec i)))
