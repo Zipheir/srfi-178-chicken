@@ -1,13 +1,18 @@
 ;;;; Bit conversions
 
 (: bit->integer (bit --> fixnum))
-(define (bit->integer bit) (I bit))
+(define (bit->integer bit)
+  (assert (%bit? bit))
+  (I bit))
 
 (: bit->boolean (bit --> boolean))
-(define (bit->boolean bit) (B bit))
+(define (bit->boolean bit)
+  (assert (%bit? bit))
+  (B bit))
 
 (: bitvector->string (bitvector --> string))
 (define (bitvector->string bvec)
+  (assert (bitvector? bvec))
   (let loop ((i (- (bitvector-length bvec) 1))
              (r '()))
     (if (< i 0)
@@ -17,6 +22,7 @@
 
 (: string->bitvector (string -> (or bitvector false)))
 (define (string->bitvector str)
+  (assert (string? str))
   (call/cc
    (lambda (return)
      (and
@@ -36,6 +42,7 @@
 
 (: bitvector->integer (bitvector --> fixnum))
 (define (bitvector->integer bvec)
+  (assert (bitvector? bvec))
   (bitvector-fold-right/int (lambda (r b) (+ (* r 2) b)) 0 bvec))
 
 (: integer->bitvector (fixnum #!optional fixnum -> bitvector))
@@ -43,6 +50,8 @@
   (case-lambda
     ((int) (integer->bitvector int (integer-length int)))
     ((int len)
+     (assert (exact-natural? int))
+     (assert (exact-natural? len))
      (bitvector-unfold
       (lambda (_ int)
         (values (bit-set? 0 int) (arithmetic-shift int -1)))
@@ -58,6 +67,9 @@
     ((vec) (reverse-vector->bitvector vec 0 (vector-length vec)))
     ((vec start) (reverse-vector->bitvector vec start (vector-length vec)))
     ((vec start end)
+     (assert (vector? vec))
+     (assert (exact-natural? start))
+     (assert (exact-natural? end))
      (bitvector-unfold
       (lambda (i)
         (vector-ref vec (- end 1 i)))
@@ -72,6 +84,9 @@
     ((bvec start)
      (reverse-bitvector->vector/int bvec start (bitvector-length bvec)))
     ((bvec start end)
+     (assert (bitvector? bvec))
+     (assert (exact-natural? start))
+     (assert (exact-natural? end))
      (let ((u8vec (U bvec)))
        (vector-unfold (lambda (i)
                         (u8vector-ref u8vec (- end 1 i)))
@@ -86,6 +101,9 @@
     ((bvec start)
      (reverse-bitvector->vector/bool bvec start (bitvector-length bvec)))
     ((bvec start end)
+     (assert (bitvector? bvec))
+     (assert (exact-natural? start))
+     (assert (exact-natural? end))
      (let ((u8vec (U bvec)))
        (vector-unfold (lambda (i)
                         (B (u8vector-ref u8vec (- end 1 i))))
