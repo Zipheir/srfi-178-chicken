@@ -1,5 +1,8 @@
 (: bitvector-logical-shift (bitvector fixnum bit -> bitvector))
 (define (bitvector-logical-shift bvec count bit)
+  (assert (bitvector? bvec))
+  (assert (exact-integer? count))
+  (assert (%bit? bit))
   (cond ((positive? count)
          (%bitvector-left-shift bvec count (I bit)))
         ((negative? count)
@@ -26,6 +29,8 @@
 
 (: bitvector-count (bit bitvector --> fixnum))
 (define (bitvector-count bit bvec)
+  (assert (%bit? bit))
+  (assert (bitvector? bvec))
   (let ((int (I bit)))
     (bitvector-fold/int (lambda (n b) (if (= b int) (+ n 1) n))
                         0
@@ -33,6 +38,9 @@
 
 (: bitvector-count-run (bit bitvector fixnum --> fixnum))
 (define (bitvector-count-run bit bvec index)
+  (assert (%bit? bit))
+  (assert (bitvector? bvec))
+  (assert (exact-natural? count))
   (let ((int (I bit))
         (len (bitvector-length bvec)))
     (let lp ((i index) (c 0))
@@ -50,6 +58,8 @@
 
 (: bitvector-first-bit (bit bitvector -> fixnum))
 (define (bitvector-first-bit bit bvec)
+  (assert (%bit? bit))
+  (assert (bitvector? bvec))
   (let ((int (I bit)) (len (bitvector-length bvec)))
     (let lp ((i 0))
       (cond ((>= i len) -1)
