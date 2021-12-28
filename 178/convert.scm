@@ -3,7 +3,7 @@
 (: bit->integer (bit --> fixnum))
 (define (bit->integer bit) (I bit))
 
-(: bit->integer (bit --> boolean))
+(: bit->boolean (bit --> boolean))
 (define (bit->boolean bit) (B bit))
 
 (: bitvector->string (bitvector --> string))
