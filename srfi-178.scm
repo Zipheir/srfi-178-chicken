@@ -90,6 +90,7 @@
   (define-type bit (or boolean fixnum))
 
   (include "r7rs-shim.scm")
+  (include "178/util.scm")
   (include "178/macros.scm")
   (include "178/convert.scm")
   (include "178/fields.scm")
