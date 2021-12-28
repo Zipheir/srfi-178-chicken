@@ -1,4 +1,4 @@
-(: bitvector-prefix-length (bitvector bitvector --> fixnum))
+(: bitvector-prefix-length (bitvector bitvector --> integer))
 (define (bitvector-prefix-length bvec1 bvec2)
   (assert (bitvector? bvec1))
   (assert (bitvector? bvec2))
@@ -12,7 +12,7 @@
               i
               (lp (+ i 1)))))))
 
-(: bitvector-suffix-length (bitvector bitvector --> fixnum))
+(: bitvector-suffix-length (bitvector bitvector --> integer))
 (define (bitvector-suffix-length bvec1 bvec2)
   (assert (bitvector? bvec1))
   (assert (bitvector? bvec2))
@@ -45,7 +45,7 @@
     (and (<= len1 (bitvector-length bvec2))
          (= (bitvector-suffix-length bvec1 bvec2) len1))))
 
-(: bitvector-pad (bit bitvector fixnum -> bitvector))
+(: bitvector-pad (bit bitvector integer -> bitvector))
 (define (bitvector-pad bit bvec len)
   (assert (%bit? bit))
   (assert (bitvector? bvec))
@@ -57,7 +57,7 @@
           (bitvector-copy! result (- len old-len) bvec)
           result))))
 
-(: bitvector-pad-right (bit bitvector fixnum -> bitvector))
+(: bitvector-pad-right (bit bitvector integer -> bitvector))
 (define (bitvector-pad-right bit bvec len)
   (assert (%bit? bit))
   (assert (bitvector? bvec))
@@ -68,7 +68,7 @@
         (bitvector-copy! result 0 bvec)
         result)))
 
-(: %bitvector-skip (bitvector bit --> (or fixnum false)))
+(: %bitvector-skip (bitvector bit --> (or integer false)))
 (define (%bitvector-skip bvec bit)
   (let ((len (bitvector-length bvec))
         (int (bit->integer bit)))
@@ -78,7 +78,7 @@
                (lp (+ i 1))
                i)))))
 
-(: %bitvector-skip-right (bitvector bit -> (or fixnum false)))
+(: %bitvector-skip-right (bitvector bit -> (or integer false)))
 (define (%bitvector-skip-right bvec bit)
   (let ((len (bitvector-length bvec))
         (int (bit->integer bit)))

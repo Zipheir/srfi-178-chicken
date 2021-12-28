@@ -1,5 +1,5 @@
 (: bitvector-map->list/int
-   (procedure #!rest bitvector -> (list-of fixnum)))
+   (procedure #!rest bitvector -> (list-of integer)))
 (define bitvector-map->list/int
   (case-lambda
     ((f bvec)                    ; fast path

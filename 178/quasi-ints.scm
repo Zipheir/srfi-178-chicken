@@ -1,4 +1,4 @@
-(: bitvector-logical-shift (bitvector fixnum bit -> bitvector))
+(: bitvector-logical-shift (bitvector integer bit -> bitvector))
 (define (bitvector-logical-shift bvec count bit)
   (assert (bitvector? bvec))
   (assert (exact-integer? count))
@@ -9,7 +9,7 @@
          (%bitvector-right-shift bvec (- count) (I bit)))
         (else bvec)))
 
-(: %bitvector-left-shift (bitvector fixnum fixnum -> bitvector))
+(: %bitvector-left-shift (bitvector integer integer -> bitvector))
 (define (%bitvector-left-shift bvec count bit)
   (let ((len (bitvector-length bvec)))
     (bitvector-unfold
@@ -18,7 +18,7 @@
          (if (< i* len) (bitvector-ref/int bvec i*) bit)))
      len)))
 
-(: %bitvector-right-shift (bitvector fixnum fixnum -> bitvector))
+(: %bitvector-right-shift (bitvector integer integer -> bitvector))
 (define (%bitvector-right-shift bvec count bit)
   (bitvector-unfold
    (lambda (i)
@@ -27,7 +27,7 @@
          (bitvector-ref/int bvec (- i count))))
    (bitvector-length bvec)))
 
-(: bitvector-count (bit bitvector --> fixnum))
+(: bitvector-count (bit bitvector --> integer))
 (define (bitvector-count bit bvec)
   (assert (%bit? bit))
   (assert (bitvector? bvec))
@@ -36,7 +36,7 @@
                         0
                         bvec)))
 
-(: bitvector-count-run (bit bitvector fixnum --> fixnum))
+(: bitvector-count-run (bit bitvector integer --> integer))
 (define (bitvector-count-run bit bvec index)
   (assert (%bit? bit))
   (assert (bitvector? bvec))
@@ -56,7 +56,7 @@
                       then-bvec
                       else-bvec))
 
-(: bitvector-first-bit (bit bitvector -> fixnum))
+(: bitvector-first-bit (bit bitvector -> integer))
 (define (bitvector-first-bit bit bvec)
   (assert (%bit? bit))
   (assert (bitvector? bvec))

@@ -1,4 +1,4 @@
-(: bitvector-field-any? (bitvector fixnum fixnum -> boolean))
+(: bitvector-field-any? (bitvector integer integer -> boolean))
 (define (bitvector-field-any? bvec start end)
   (assert (bitvector? bvec))
   (assert (exact-natural? start))
@@ -8,7 +8,7 @@
          (or (bitvector-ref/bool bvec i)
              (lp (+ i 1))))))
 
-(: bitvector-field-every? (bitvector fixnum fixnum -> boolean))
+(: bitvector-field-every? (bitvector integer integer -> boolean))
 (define (bitvector-field-every? bvec start end)
   (assert (bitvector? bvec))
   (assert (exact-natural? start))
@@ -26,32 +26,32 @@
          (bitvector-ref/int bvec i)))
    (bitvector-length bvec)))
 
-(: bitvector-field-clear (bitvector fixnum fixnum -> bitvector))
+(: bitvector-field-clear (bitvector integer integer -> bitvector))
 (define (bitvector-field-clear bvec start end)
   (assert (bitvector? bvec))
   (assert (exact-natural? start))
   (assert (exact-natural? end))
   (%bitvector-field-modify bvec 0 start end))
 
-(: %bitvector-fill!/int (bitvector fixnum fixnum fixnum -> undefined))
+(: %bitvector-fill!/int (bitvector integer integer integer -> undefined))
 (define (%bitvector-fill!/int bvec int start end)
   (u8vector-fill! (U bvec) int start end))
 
-(: bitvector-field-clear! (bitvector fixnum fixnum -> undefined))
+(: bitvector-field-clear! (bitvector integer integer -> undefined))
 (define (bitvector-field-clear! bvec start end)
   (assert (bitvector? bvec))
   (assert (exact-natural? start))
   (assert (exact-natural? end))
   (%bitvector-fill!/int bvec 0 start end))
 
-(: bitvector-field-set (bitvector fixnum fixnum -> bitvector))
+(: bitvector-field-set (bitvector integer integer -> bitvector))
 (define (bitvector-field-set bvec start end)
   (assert (bitvector? bvec))
   (assert (exact-natural? start))
   (assert (exact-natural? end))
   (%bitvector-field-modify bvec 1 start end))
 
-(: bitvector-field-set! (bitvector fixnum fixnum -> undefined))
+(: bitvector-field-set! (bitvector integer integer -> undefined))
 (define (bitvector-field-set! bvec start end)
   (assert (bitvector? bvec))
   (assert (exact-natural? start))
@@ -59,7 +59,7 @@
   (%bitvector-fill!/int bvec 1 start end))
 
 (: bitvector-field-replace
-   (bitvector bitvector fixnum fixnum -> bitvector))
+   (bitvector bitvector integer integer -> bitvector))
 (define (bitvector-field-replace dest source start end)
   (assert (bitvector? dest))
   (assert (bitvector? source))
@@ -73,7 +73,7 @@
    (bitvector-length dest)))
 
 (: bitvector-field-replace!
-   (bitvector bitvector fixnum fixnum -> undefined))
+   (bitvector bitvector integer integer -> undefined))
 (define (bitvector-field-replace! dest source start end)
   (assert (bitvector? dest))
   (assert (bitvector? source))
@@ -82,7 +82,7 @@
   (bitvector-copy! dest start source 0 (- end start)))
 
 (: bitvector-field-replace-same
-   (bitvector bitvector fixnum fixnum -> bitvector))
+   (bitvector bitvector integer integer -> bitvector))
 (define (bitvector-field-replace-same dest source start end)
   (assert (bitvector? dest))
   (assert (bitvector? source))
@@ -97,7 +97,7 @@
    (bitvector-length dest)))
 
 (: bitvector-field-replace-same!
-   (bitvector bitvector fixnum fixnum -> undefined))
+   (bitvector bitvector integer integer -> undefined))
 (define (bitvector-field-replace-same! dest source start end)
   (assert (bitvector? dest))
   (assert (bitvector? source))
@@ -105,7 +105,7 @@
   (assert (exact-natural? end))
   (bitvector-copy! dest start source start end))
 
-(: bitvector-field-rotate (bitvector fixnum fixnum fixnum -> bitvector))
+(: bitvector-field-rotate (bitvector integer integer integer -> bitvector))
 (define (bitvector-field-rotate bvec count start end)
   (assert (bitvector? bvec))
   (assert (exact-integer? count))
@@ -123,7 +123,7 @@
                (bitvector-ref/int bvec i)))
          (bitvector-length bvec)))))
 
-(: bitvector-field-flip (bitvector fixnum fixnum -> bitvector))
+(: bitvector-field-flip (bitvector integer integer -> bitvector))
 (define (bitvector-field-flip bvec start end)
   (assert (bitvector? bvec))
   (assert (exact-natural? start))
@@ -135,7 +135,7 @@
             (bitvector-ref/bool bvec i))))
    (bitvector-length bvec)))
 
-(: bitvector-field-flip! (bitvector fixnum fixnum -> undefined))
+(: bitvector-field-flip! (bitvector integer integer -> undefined))
 (define (bitvector-field-flip! bvec start end)
   (assert (bitvector? bvec))
   (assert (exact-natural? start))
