@@ -6,4 +6,6 @@
  (version "0.1")
  (dependencies srfi-151 srfi-160 srfi-141)
  (components
-  (extension srfi-178)))
+  (extension
+   srfi-178
+   (types-file))))
