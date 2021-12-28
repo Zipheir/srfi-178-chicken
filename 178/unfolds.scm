@@ -1,6 +1,7 @@
 ;;;; unfold
 
 ;; Zero-seed fast path.
+(: %bitvector-tabulate ((fixnum -> fixnum) fixnum -> bitvector))
 (define (%bitvector-tabulate f len)
   (let ((res (make-u8vector len)))
     (let lp ((i 0))
@@ -9,6 +10,7 @@
                 (lp (+ i 1)))))))
 
 ;; One-seed fast path.
+(: %bitvector-unfold-1 (procedure fixnum * -> bitvector))
 (define (%bitvector-unfold-1 f len seed)
   (let ((res (make-u8vector len)))
     (let lp ((i 0) (seed seed))
@@ -18,6 +20,7 @@
             (u8vector-set! res i (I b))
             (lp (+ i 1) seed*))))))
 
+(: bitvector-unfold (procedure fixnum #!rest * -> bitvector))
 (define bitvector-unfold
   (case-lambda
    ((f len) (%bitvector-tabulate f len))
@@ -34,6 +37,7 @@
 ;;;; unfold-right
 
 ;; Zero-seed fast path.
+(: %bitvector-tabulate-right ((fixnum -> fixnum) fixnum -> bitvector))
 (define (%bitvector-tabulate-right f len)
   (let ((res (make-u8vector len)))
     (let lp ((i (- len 1)))
@@ -42,6 +46,7 @@
                   (lp (- i 1)))))))
 
 ;; One-seed fast path.
+(: %bitvector-unfold-1-right (procedure fixnum * -> bitvector))
 (define (%bitvector-unfold-1-right f len seed)
   (let ((result (make-u8vector len)))
     (let lp ((i (- len 1)) (seed seed))
@@ -51,6 +56,7 @@
             (u8vector-set! result i (I b))
             (lp (- i 1) seed*))))))
 
+(: bitvector-unfold-right (procedure fixnum #!rest * -> bitvector))
 (define bitvector-unfold-right
   (case-lambda
    ((f len) (%bitvector-tabulate-right f len))
