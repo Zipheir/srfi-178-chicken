@@ -20,39 +20,13 @@
 ;;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 (import (chicken base)
+        test
         (srfi 178))
 
-(define *tests-failed* 0)
-
+;; SRFI 78 -> test egg wrapper.
 (define-syntax check
-  (syntax-rules (=>)
-    ((check expr => expected)
-     (if (equal? expr expected)
-       (begin
-         (display 'expr)
-         (display " => ")
-         (display expected)
-         (display " ; correct")
-         (newline))
-       (begin
-         (set! *tests-failed* (+ *tests-failed* 1))
-         (display "FAILED: for ")
-         (display 'expr)
-         (display " expected ")
-         (display expected)
-         (display " but got ")
-         (display expr)
-         (newline))))))
-
-(define (check-report)
-  (if (zero? *tests-failed*)
-      (begin
-       (display "All tests passed.")
-       (newline)
-       (exit 0))
-      (begin
-       (error "TESTS FAILED" *tests-failed*)
-       (exit 1))))
+  (syntax-rules ()
+    ((check expr => res) (test res expr))))
 
 (define (generator-for-each proc g)
   (let ((v (g)))
@@ -66,20 +40,13 @@
         '()
         (cons v (generator->list g)))))
 
-(define (print-header message)
-  (newline)
-  (display ";;; ")
-  (display message)
-  (newline))
-
 ;;;; Utility
 
 (define (proc-or a b) (or a b))
 
 (define bitvector= bitvector=?)
 
-(define (check-bit-conversions)
-  (print-header "Checking bit conversions...")
+(test-group "Bit conversions"
 
   (check (bit->integer 0)  => 0)
   (check (bit->integer 1)  => 1)
@@ -90,8 +57,7 @@
   (check (bit->boolean #f) => #f)
   (check (bit->boolean #t) => #t))
 
-(define (check-predicates)
-  (print-header "Checking predicates...")
+(test-group "Predicates"
 
   (check (bitvector? (bitvector))        => #t)
   (check (bitvector? (make-bitvector 1)) => #t)
@@ -123,22 +89,4 @@
 (include "quasi-ints.scm")
 (include "fields.scm")
 
-(define (check-all)
-  ;; Check predicates, bitvector conversions, and selectors first,
-  ;; since they're used extensively in later tests.
-  (check-predicates)
-  (check-bitvector-conversions)
-  (check-selectors)
-  (check-bit-conversions)
-  (check-constructors)
-  (check-iterators)
-  (check-quasi-string-ops)
-  (check-mutators)
-  (check-bitwise-operations)
-  (check-quasi-integer-operations)
-  (check-bit-field-operations)
-
-  (newline)
-  (check-report))
-
-(check-all)
+(test-exit)

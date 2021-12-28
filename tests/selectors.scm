@@ -1,5 +1,4 @@
-(define (check-selectors)
-  (print-header "Checking selectors...")
+(test-group "Selectors"
 
   (check (bitvector-length (bitvector))             => 0)
   (check (bitvector-length (bitvector 1 0 1 0))     => 4)

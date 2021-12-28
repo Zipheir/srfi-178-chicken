@@ -1,5 +1,4 @@
-(define (check-mutators)
-  (print-header "Checking mutators...")
+(test-group "Mutators"
 
   (let ((bvec (bitvector 1 0 1 0)))
     (check

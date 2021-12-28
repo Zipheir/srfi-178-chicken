@@ -1,6 +1,5 @@
-(define (check-generators-and-accumulators)
+(test-group "Generators and accumulators"
   (define test-bvec (bitvector 1 0 1 1 0 1 0 1))
-  (print-header "Checking generators and accumulators...")
 
   ;;; Generators
 

@@ -1,8 +1,7 @@
-(define (check-bitwise-operations)
+(test-group "Bitwise operations"
   (define test-bvec1 (bitvector 1 0 1 0))
   (define test-bvec2 (bitvector 1 1 0 0))
   (define test-bvec3 (bitvector 0 0 1 1))
-  (print-header "Checking bitwise operations...")
 
   ;;; not
 

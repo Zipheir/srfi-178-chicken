@@ -1,5 +1,4 @@
-(define (check-bit-field-operations)
-  (print-header "Checking bit field operations...")
+(test-group "Bit fields"
 
   (check (bitvector-field-any? (bitvector 0 1 0 0) 0 4) => #t)
   (check (bitvector-field-any? (bitvector 0 0 0 0) 0 4) => #f)

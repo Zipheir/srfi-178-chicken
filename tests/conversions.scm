@@ -1,5 +1,4 @@
-(define (check-bitvector-conversions)
-  (print-header "Checking bitvector conversions...")
+(test-group "Bitvector conversions"
 
   ;;; lists
 

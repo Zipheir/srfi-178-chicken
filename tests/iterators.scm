@@ -1,5 +1,4 @@
-(define (check-iterators)
-  (print-header "Checking iteration...")
+(test-group "Iteration"
 
   ;;; take & take-right
 

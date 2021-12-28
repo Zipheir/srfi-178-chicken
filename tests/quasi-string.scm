@@ -1,5 +1,4 @@
-(define (check-quasi-string-ops)
-  (print-header "Checking quasi-string operations...")
+(test-group "Quasi-string operations"
 
   ;;; prefix & suffix
 
