@@ -20,19 +20,19 @@
 
   ;;; Accumulator
 
-  (check (bitvector-empty? ((make-bitvector-accumulator) (eof-object)))
+  (check (bitvector-empty? ((make-bitvector-accumulator) #!eof))
    => #t)
   ;; Accumulate integers.
   (check (bitvector= test-bvec
                      (let ((acc (make-bitvector-accumulator)))
                        (bitvector-for-each/int acc test-bvec)
-                       (acc (eof-object))))
+                       (acc #!eof)))
    => #t)
   ;; Accumulate booleans.
   (check (bitvector= test-bvec
                      (let ((acc (make-bitvector-accumulator)))
                        (bitvector-for-each/bool acc test-bvec)
-                       (acc (eof-object))))
+                       (acc #!eof)))
    => #t)
 
   ;;; Generator/accumulator identities
@@ -42,7 +42,7 @@
           (let ((gen (make-bitvector/int-generator test-bvec))
                 (acc (make-bitvector-accumulator)))
             (generator-for-each acc gen)
-            (acc (eof-object)))
+            (acc #!eof))
           test-bvec)
    => #t)
 
@@ -53,7 +53,7 @@
             (let ((acc (make-bitvector-accumulator)))
               (for-each acc lis)
               (generator->list
-               (make-bitvector/int-generator (acc (eof-object)))))
+               (make-bitvector/int-generator (acc #!eof))))
             lis)
      => #t))
   ;; Boolean generator.
@@ -62,7 +62,7 @@
             (let ((acc (make-bitvector-accumulator)))
               (for-each acc lis)
               (generator->list
-               (make-bitvector/bool-generator (acc (eof-object)))))
+               (make-bitvector/bool-generator (acc #!eof))))
             lis)
      => #t))
 )
