@@ -40,7 +40,7 @@
 (define (bitvector-count-run bit bvec index)
   (assert (%bit? bit))
   (assert (bitvector? bvec))
-  (assert (exact-natural? count))
+  (assert (exact-natural? index))
   (let ((int (I bit))
         (len (bitvector-length bvec)))
     (let lp ((i index) (c 0))
