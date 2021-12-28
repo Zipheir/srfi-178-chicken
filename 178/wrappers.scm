@@ -231,7 +231,6 @@
 (define (bitvector-swap! bvec i j)
   (u8vector-swap! (U bvec) i j))
 
-
 (: bitvector-reverse! (bitvector #!optional fixnum fixnum -> undefined))
 (define bitvector-reverse!
   (case-lambda
