@@ -8,4 +8,5 @@
  (components
   (extension
    srfi-178
+   (csc-options "-fixnum-arithmetic" "-O3" "-d1")
    (types-file))))
