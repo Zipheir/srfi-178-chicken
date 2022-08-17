@@ -86,12 +86,12 @@
 (define bitvector-fold/bool
   (case-lambda
     ((kons knil bvec)
-     (assert (procedure? kons))
+     (assert-type 'bitvector-fold/bool (procedure? kons))
      (u8vector-fold (lambda (x b) (kons x (B b)))  ; fast path
                     knil
                     (U bvec)))
     ((kons knil . bvecs)
-     (assert (procedure? kons))
+     (assert-type 'bitvector-fold/bool (procedure? kons))
      (apply u8vector-fold
             (lambda (x . bits)
               (apply kons x (map bit->boolean bits)))
@@ -102,22 +102,22 @@
 (define bitvector-fold-right/int
   (case-lambda
     ((kons knil bvec)
-     (assert (procedure? kons))
+     (assert-type 'bitvector-fold-right/int (procedure? kons))
      (u8vector-fold-right kons knil (U bvec)))    ; fast path
     ((kons knil . bvecs)
-     (assert (procedure? kons))
+     (assert-type 'bitvector-fold-right/int (procedure? kons))
      (apply u8vector-fold-right kons knil (map U bvecs)))))
 
 (: bitvector-fold-right/bool (procedure * #!rest bitvector -> *))
 (define bitvector-fold-right/bool
   (case-lambda
     ((kons knil bvec)
-     (assert (procedure? kons))
+     (assert-type 'bitvector-fold-right/bool (procedure? kons))
      (u8vector-fold-right (lambda (x bit) (kons x (B bit)))  ; fast path
                           knil
                           (U bvec)))
     ((kons knil . bvecs)
-     (assert (procedure? kons))
+     (assert-type 'bitvector-fold-right/bool (procedure? kons))
      (apply u8vector-fold-right
             (lambda (x . bits)
               (apply kons x (map bit->boolean bits)))
@@ -128,13 +128,13 @@
 (define bitvector-map/int
   (case-lambda
     ((f bvec)
-     (assert (procedure? f))
+     (assert-type 'bitvector-map/int (procedure? f))
      (W (u8vector-map f (U bvec))))        ; one-bitvector fast path
     ((f bvec1 bvec2)
-     (assert (procedure? f))
+     (assert-type 'bitvector-map/int (procedure? f))
      (%bitvector-map2/int f bvec1 bvec2))  ; two-bitvector fast path
     ((f . bvecs)
-     (assert (procedure? f))
+     (assert-type 'bitvector-map/int (procedure? f))
      (W (apply u8vector-map f (map U bvecs))))))  ; normal path
 
 ;; Tuned two-bitvector version, mainly for binary logical ops.
@@ -150,13 +150,13 @@
 (define bitvector-map/bool
   (case-lambda
     ((f bvec)          ; one-bitvector fast path
-     (assert (procedure? f))
+     (assert-type 'bitvector-map/bool (procedure? f))
      (W (u8vector-map (lambda (n) (I (f (B n)))) (U bvec))))
     ((f bvec1 bvec2)   ; two-bitvector fast path
-     (assert (procedure? f))
+     (assert-type 'bitvector-map/bool (procedure? f))
      (%bitvector-map2/int (lambda (n m) (I (f (B n) (B m)))) bvec1 bvec2))
     ((f . bvecs)       ; normal path (ugh)
-     (assert (procedure? f))
+     (assert-type 'bitvector-map/bool (procedure? f))
      (W (apply u8vector-map
                (lambda ns (I (apply f (map bit->boolean ns))))
                (map U bvecs))))))
@@ -165,13 +165,13 @@
 (define bitvector-map!/int
   (case-lambda
     ((f bvec)
-     (assert (procedure? f))
+     (assert-type 'bitvector-map!/int (procedure? f))
      (u8vector-map! f (U bvec)))            ; one-bitvector fast path
     ((f bvec1 bvec2)
-     (assert (procedure? f))
+     (assert-type 'bitvector-map!/int (procedure? f))
      (%bitvector-map2!/int f bvec1 bvec2))  ; two-bitvector fast path
     ((f . bvecs)
-     (assert (procedure? f))
+     (assert-type 'bitvector-map!/int (procedure? f))
      (apply u8vector-map! f (map U bvecs)))))  ; normal path
 
 ;; Tuned two-bitvector version, mainly for binary logical ops.
@@ -190,13 +190,13 @@
 (define bitvector-map!/bool
   (case-lambda
     ((f bvec)          ; one-bitvector fast path
-     (assert (procedure? f))
+     (assert-type 'bitvector-map!/bool (procedure? f))
      (u8vector-map! (lambda (n) (I (f (B n)))) (U bvec)))
     ((f bvec1 bvec2)   ; two-bitvector fast path
-     (assert (procedure? f))
+     (assert-type 'bitvector-map!/bool (procedure? f))
      (%bitvector-map2!/int (lambda (n m) (I (f (B n) (B m)))) bvec1 bvec2))
     ((f . bvecs)       ; normal path (ugh)
-     (assert (procedure? f))
+     (assert-type 'bitvector-map!/bool (procedure? f))
      (apply u8vector-map!
             (lambda ns (I (apply f (map bit->boolean ns))))
             (map U bvecs)))))
@@ -205,20 +205,20 @@
 (define bitvector-for-each/int
   (case-lambda
     ((f bvec)
-     (assert (procedure? f))
+     (assert-type 'bitvector-for-each/int (procedure? f))
      (u8vector-for-each f (U bvec)))    ; fast path
     ((f . bvecs)
-     (assert (procedure? f))
+     (assert-type 'bitvector-for-each/int (procedure? f))
      (apply u8vector-for-each f (map U bvecs)))))
 
 (: bitvector-for-each/bool (procedure #!rest bitvector -> undefined))
 (define bitvector-for-each/bool
   (case-lambda
     ((f bvec)
-     (assert (procedure? f))
+     (assert-type 'bitvector-for-each/bool (procedure? f))
      (u8vector-for-each (lambda (n) (f (B n))) (U bvec)))    ; fast path
     ((f . bvecs)
-     (assert (procedure? f))
+     (assert-type 'bitvector-for-each/bool (procedure? f))
      (apply u8vector-for-each
             (lambda ns (apply f (map bit->boolean ns)))
             (map U bvecs)))))

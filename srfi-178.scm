@@ -74,6 +74,7 @@
   (import (scheme)
           (chicken base)
           (chicken type)
+          (chicken condition)
           (only (srfi 141) floor-remainder)
           (srfi 151)
           (srfi 160 base) ; temporary
@@ -88,6 +89,19 @@
                     (lp (+ i 1)))))))
 
   (define-type bit (or boolean fixnum))
+  
+  (define-syntax assert-type
+    (syntax-rules ()
+      ((assert-type loc expr)
+       (unless expr
+         (abort
+          (make-composite-condition
+           (make-property-condition 'exn
+            'location loc
+            'message "type check failed"
+            'arguments (list 'expr))
+           (make-property-condition 'type)
+           (make-property-condition 'assertion)))))))
 
   (include "r7rs-shim.scm")
   (include "178/util.scm")
