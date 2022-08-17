@@ -5,12 +5,12 @@
 (define (%bitvector-tabulate f len)
   (let ((res (make-u8vector len)))
     (let lp ((i 0))
-    (cond ((= i len) (W res))
-          (else
-           (let ((b (f i)))
-             (assert-type 'bitvector-unfold (%bit? b))
-             (u8vector-set! res i (I b))
-             (lp (+ i 1))))))))
+      (cond ((= i len) (W res))
+            (else
+             (let ((b (f i)))
+               (assert-type 'bitvector-unfold (%bit? b))
+               (u8vector-set! res i (I b))
+               (lp (+ i 1))))))))
 
 ;; One-seed fast path.
 (: %bitvector-unfold-1 (procedure integer * -> bitvector))
