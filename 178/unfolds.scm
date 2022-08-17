@@ -6,8 +6,11 @@
   (let ((res (make-u8vector len)))
     (let lp ((i 0))
     (cond ((= i len) (W res))
-          (else (u8vector-set! res i (I (f i)))
-                (lp (+ i 1)))))))
+          (else
+           (let ((b (f i)))
+             (assert-type 'bitvector-unfold (%bit? b))
+             (u8vector-set! res i (I b))
+             (lp (+ i 1))))))))
 
 ;; One-seed fast path.
 (: %bitvector-unfold-1 (procedure integer * -> bitvector))
@@ -17,6 +20,7 @@
       (if (= i len)
           (W res)
           (let-values (((b seed*) (f i seed)))
+            (assert-type 'bitvector-unfold (%bit? b))
             (u8vector-set! res i (I b))
             (lp (+ i 1) seed*))))))
 
@@ -39,6 +43,7 @@
         (if (= i len)
             (W res)
             (let-values (((b . seeds*) (apply f i seeds)))
+              (assert-type 'bitvector-unfold (%bit? b))
               (u8vector-set! res i (I b))
               (lp (+ i 1) seeds*))))))))
 
@@ -50,8 +55,11 @@
   (let ((res (make-u8vector len)))
     (let lp ((i (- len 1)))
       (cond ((< i 0) (W res))
-            (else (u8vector-set! res i (I (f i)))
-                  (lp (- i 1)))))))
+            (else
+             (let ((b (f i)))
+               (assert-type 'bitvector-unfold-right (%bit? b))
+               (u8vector-set! res i (I b))
+               (lp (- i 1))))))))
 
 ;; One-seed fast path.
 (: %bitvector-unfold-1-right (procedure integer * -> bitvector))
@@ -61,6 +69,7 @@
       (if (< i 0)
           (W result)
           (let-values (((b seed*) (f i seed)))
+            (assert-type 'bitvector-unfold-right (%bit? b))
             (u8vector-set! result i (I b))
             (lp (- i 1) seed*))))))
 
@@ -83,5 +92,6 @@
         (if (< i 0)
             (W res)
             (let-values (((b . seeds*) (apply f i seeds)))
+              (assert-type 'bitvector-unfold-right (%bit? b))
               (u8vector-set! res i (I b))
               (lp (- i 1) seeds*))))))))
