@@ -22,6 +22,8 @@
 (define (make-bitvector-accumulator)
   (let ((r '()))
     (lambda (x)
-      (cond ((eof-object? x) (reverse-list->bitvector r))
-            ((%bit? x) (set! r (cons x r)))
-            (else (error "cannot accumulate non-bit value" x))))))
+      (assert-type 'make-bitvector-accumulator
+                   (or (%bit? x) (eof-object? x)))
+      (if (eof-object? x)
+          (reverse-list->bitvector r)
+          (set! r (cons x r))))))
