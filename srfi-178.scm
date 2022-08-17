@@ -103,6 +103,16 @@
            (make-property-condition 'type)
            (make-property-condition 'assertion)))))))
 
+  (define (bounds-exception loc msg . args)
+    (abort
+     (make-composite-condition
+      (make-property-condition 'exn
+       'location loc
+       'message msg
+       'arguments args)
+      (make-property-condition 'bounds)
+      (make-property-condition 'assertion))))
+
   (include "r7rs-shim.scm")
   (include "178/util.scm")
   (include "178/macros.scm")
