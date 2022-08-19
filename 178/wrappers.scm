@@ -392,10 +392,17 @@
 (define bitvector-copy!
   (case-lambda
     ((to at from)
-     (u8vector-copy! (U to) at (U from) 0 (bitvector-length from)))
+     (bitvector-copy! to at from 0 (bitvector-length from)))
     ((to at from start)
-     (u8vector-copy! (U to) at (U from) start (bitvector-length from)))
+     (bitvector-copy! to at from start (bitvector-length from)))
     ((to at from start end)
+     (assert-type 'bitvector-copy! (bitvector? to))
+     (assert-type 'bitvector-copy! (exact-integer? at))
+     (assert-type 'bitvector-copy! (bitvector? from))
+     (assert-type 'bitvector-copy! (exact-integer? start))
+     (assert-type 'bitvector-copy! (exact-integer? end))
+     (%check-index 'bitvector-copy! to at)
+     (%check-range 'bitvector-copy! from start end)
      (u8vector-copy! (U to) at (U from) start end))))
 
 (: bitvector-reverse-copy!
@@ -403,30 +410,47 @@
 (define bitvector-reverse-copy!
   (case-lambda
     ((to at from)
-     (u8vector-reverse-copy! (U to) at (U from) 0 (bitvector-length from)))
+     (bitvector-reverse-copy! to at from 0 (bitvector-length from)))
     ((to at from start)
-     (u8vector-reverse-copy! (U to) at (U from) start (bitvector-length from)))
+     (bitvector-reverse-copy! to at from start (bitvector-length from)))
     ((to at from start end)
+     (assert-type 'bitvector-reverse-copy! (bitvector? to))
+     (assert-type 'bitvector-reverse-copy! (exact-integer? at))
+     (assert-type 'bitvector-reverse-copy! (bitvector? from))
+     (assert-type 'bitvector-reverse-copy! (exact-integer? start))
+     (assert-type 'bitvector-reverse-copy! (exact-integer? end))
+     (%check-index 'bitvector-reverse-copy! to at)
+     (%check-range 'bitvector-reverse-copy! from start end)
      (u8vector-reverse-copy! (U to) at (U from) start end))))
 
 (: bitvector->list/int (bitvector integer integer -> (list-of integer)))
 (define bitvector->list/int
   (case-lambda
     ((bvec)
-     (u8vector->list (U bvec)))
+     (assert-type 'bitvector->list/int (bitvector? bvec))
+     (u8vector->list (U bvec))
     ((bvec start)
-     (u8vector->list (U bvec) start))
+     (bitvector->list bvec start (bitvector-length bvec)))
     ((bvec start end)
+     (assert-type 'bitvector->list/int (bitvector? bvec))
+     (assert-type 'bitvector->list/int (exact-integer? start))
+     (assert-type 'bitvector->list/int (exact-integer? end))
+     (%check-range 'bitvector->list/int bvec start end)
      (u8vector->list (U bvec) start end))))
 
 (: bitvector->list/bool (bitvector integer integer -> (list-of boolean)))
 (define bitvector->list/bool
   (case-lambda
     ((bvec)
+     (assert-type 'bitvector->list/bool (bitvector? bvec))
      (map bit->boolean (u8vector->list (U bvec))))
     ((bvec start)
-     (map bit->boolean (u8vector->list (U bvec) start)))
+     (bitvector->list/bool bvec start (bitvector-length bvec))
     ((bvec start end)
+     (assert-type 'bitvector->list/bool (bitvector? bvec))
+     (assert-type 'bitvector->list/bool (exact-integer? start))
+     (assert-type 'bitvector->list/bool (exact-integer? end))
+     (%check-range 'bitvector->list/bool bvec start end)
      (map bit->boolean (u8vector->list (U bvec) start end)))))
 
 (: reverse-bitvector->list/int
@@ -434,10 +458,15 @@
 (define reverse-bitvector->list/int
   (case-lambda
     ((bvec)
+     (assert-type 'reverse-bitvector->list/int (bitvector? bvec))
      (reverse-u8vector->list (U bvec)))
     ((bvec start)
-     (reverse-u8vector->list (U bvec) start))
+     (reverse-bitvector->list bvec start (bitvector-length bvec)))
     ((bvec start end)
+     (assert-type 'reverse-bitvector->list/int (bitvector? bvec))
+     (assert-type 'reverse-bitvector->list/int (exact-integer? start))
+     (assert-type 'reverse-bitvector->list/int (exact-integer? end))
+     (%check-range 'reverse-bitvector->list/int bvec start end)
      (reverse-u8vector->list (U bvec) start end))))
 
 (: reverse-bitvector->list/bool
@@ -445,10 +474,15 @@
 (define reverse-bitvector->list/bool
   (case-lambda
     ((bvec)
+     (assert-type 'reverse-bitvector->list/bool (bitvector? bvec))
      (map bit->boolean (reverse-u8vector->list (U bvec))))
     ((bvec start)
-     (map bit->boolean (reverse-u8vector->list (U bvec) start)))
+     (reverse-bitvector->list/bool bvec start (bitvector-length bvec)))
     ((bvec start end)
+     (assert-type 'reverse-bitvector->list/bool (bitvector? bvec))
+     (assert-type 'reverse-bitvector->list/bool (exact-integer? start))
+     (assert-type 'reverse-bitvector->list/bool (exact-integer? end))
+     (%check-range 'reverse-bitvector->list/bool bvec start end)
      (map bit->boolean (reverse-u8vector->list (U bvec) start end)))))
 
 (: bitvector->vector/int
@@ -456,10 +490,15 @@
 (define bitvector->vector/int
   (case-lambda
     ((bvec)
+     (assert-type 'bitvector->vector/int (bitvector? bvec))
      (u8vector->vector (U bvec)))
     ((bvec start)
-     (u8vector->vector (U bvec) start))
+     (bitvector->vector/int bvec start (bitvector-length bvec))
     ((bvec start end)
+     (assert-type 'bitvector->vector/int (bitvector? bvec))
+     (assert-type 'bitvector->vector/int (exact-integer? start))
+     (assert-type 'bitvector->vector/int (exact-integer? end))
+     (%check-range 'bitvector->vector/int bvec start end)
      (u8vector->vector (U bvec) start end))))
 
 (: bitvector->vector/bool
@@ -467,18 +506,25 @@
 (define bitvector->vector/bool
   (case-lambda
     ((bvec)
+     (assert-type 'bitvector->vector/bool (bitvector? bvec))
      (vector-map bit->boolean (u8vector->vector (U bvec))))
     ((bvec start)
-     (vector-map bit->boolean (u8vector->vector (U bvec) start)))
+     (bitvector->vector/bool bvec start (bitvector-length bvec))
     ((bvec start end)
+     (assert-type 'bitvector->vector/bool (bitvector? bvec))
+     (assert-type 'bitvector->vector/bool (exact-integer? start))
+     (assert-type 'bitvector->vector/bool (exact-integer? end))
+     (%check-range 'bitvector->vector/bool bvec start end)
      (vector-map bit->boolean (u8vector->vector (U bvec) start end)))))
 
 (: list->bitvector ((list-of bit) -> bitvector))
 (define (list->bitvector list)
+  (assert-type 'list->bitvector (pair-or-null? list))
   (W (list->u8vector (map bit->integer list))))
 
 (: reverse-list->bitvector ((list-of bit) -> bitvector))
 (define (reverse-list->bitvector list)
+  (assert-type 'reverse-list->bitvector (pair-or-null? list))
   (W (reverse-list->u8vector (map bit->integer list))))
 
 (: bitvector (#!rest bit -> bitvector))
@@ -489,8 +535,18 @@
 (define vector->bitvector
   (case-lambda
     ((vec)
+     (assert-type 'vector->bitvector (vector? vec))
      (W (vector->u8vector (vector-map bit->integer vec))))
     ((vec start)
-     (W (vector->u8vector (vector-map bit->integer vec) start)))
+     (vector->bitvector vec start (vector-length vec)))
     ((vec start end)
+     (assert-type 'vector->bitvector (vector? vec))
+     (assert-type 'vector->bitvector (exact-integer? start))
+     (assert-type 'vector->bitvector (exact-integer? end))
+     (unless (<= 0 start end (vector-length vec))
+       (bounds-exception 'vector->bitvector
+                         "invalid range"
+                         start
+                         end
+                         vec))
      (W (vector->u8vector (vector-map bit->integer vec) start end)))))
