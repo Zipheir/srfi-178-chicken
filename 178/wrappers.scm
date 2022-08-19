@@ -397,7 +397,7 @@
      (assert-type 'bitvector->list/int (bitvector? bvec))
      (u8vector->list (U bvec)))
     ((bvec start)
-     (bitvector->list bvec start (bitvector-length bvec)))
+     (bitvector->list/int bvec start (bitvector-length bvec)))
     ((bvec start end)
      (assert-type 'bitvector->list/int (bitvector? bvec))
      (assert-type 'bitvector->list/int (exact-integer? start))
