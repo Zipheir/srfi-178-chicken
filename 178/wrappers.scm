@@ -4,8 +4,7 @@
 (define make-bitvector
   (case-lambda
     ((size)
-     (assert-type 'make-bitvector (exact-integer? size))
-     (W (make-u8vector size)))
+     (make-bitvector size 0))
     ((size bit)
      (assert-type 'make-bitvector (exact-integer? size))
      (assert-type 'make-bitvector (%bit? bit))
@@ -18,24 +17,12 @@
      (assert-type 'bitvector-copy (bitvector? bvec))
      (W (u8vector-copy (U bvec))))
     ((bvec start)
-     (assert-type 'bitvector-copy (bitvector? bvec))
-     (assert-type 'bitvector-copy (exact-integer? start))
-     (unless (<= start (bitvector-length bvec))
-       (bounds-exception 'bitvector-copy
-                         "invalid start index"
-                         start
-                         bvec))
-     (W (u8vector-copy (U bvec) start)))
+     (bitvector-copy bvec start (bitvector-length bvec)))
     ((bvec start end)
      (assert-type 'bitvector-copy (bitvector? bvec))
      (assert-type 'bitvector-copy (exact-integer? start))
      (assert-type 'bitvector-copy (exact-integer? end))
-     (unless (<= 0 start end (bitvector-length bvec))
-       (bounds-exception 'bitvector-copy
-                         "invalid start, end indices"
-                         start
-                         end
-                         bvec))
+     (%check-range 'bitvector-copy bvec start end)
      (W (u8vector-copy (U bvec) start end)))))
 
 (: bitvector-reverse-copy
@@ -46,24 +33,12 @@
      (assert-type 'bitvector-reverse-copy (bitvector? bvec))
      (W (u8vector-reverse-copy (U bvec))))
     ((bvec start)
-     (assert-type 'bitvector-reverse-copy (bitvector? bvec))
-     (assert-type 'bitvector-reverse-copy (exact-integer? start))
-     (unless (<= 0 start (bitvector-length bvec))
-       (bounds-exception 'bitvector-copy
-                         "invalid start index"
-                         start
-                         bvec))
-     (W (u8vector-reverse-copy (U bvec) start)))
+     (bitvector-reverse-copy bvec start (bitvector-length bvec))
     ((bvec start end)
      (assert-type 'bitvector-reverse-copy (bitvector? bvec))
      (assert-type 'bitvector-reverse-copy (exact-integer? start))
      (assert-type 'bitvector-reverse-copy (exact-integer? end))
-     (unless (<= 0 start end (bitvector-length bvec))
-       (bounds-exception 'bitvector-copy
-                         "invalid start, end indices"
-                         start
-                         end
-                         bvec))
+     (%check-range 'bitvector-reverse-copy bvec start end)
      (W (u8vector-reverse-copy (U bvec) start end)))))
 
 (: bitvector-append (#!rest bitvector -> bitvector))
@@ -98,22 +73,14 @@
 (define (bitvector-ref/int bvec i)
   (assert-type 'bitvector-ref/int (bitvector? bvec))
   (assert-type 'bitvector-ref/int (exact-integer? i))
-  (unless (<= 0 i (bitvector-length bvec))
-    (bounds-exception 'bitvector-ref/int
-                      "index out of bounds"
-                      i
-                      bvec))
+  (%check-index 'bitvector-ref/int bvec i)
   (u8vector-ref (U bvec) i))
 
 (: bitvector-ref/bool (bitvector integer -> boolean))
 (define (bitvector-ref/bool bvec i)
   (assert-type 'bitvector-ref/bool (bitvector? bvec))
   (assert-type 'bitvector-ref/bool (exact-integer? i))
-  (unless (<= 0 i (bitvector-length bvec))
-    (bounds-exception 'bitvector-ref/bool
-                      "index out of bounds"
-                      i
-                      bvec))
+  (%check-index 'bitvector-ref/bool bvec i)
   (B (u8vector-ref (U bvec) i)))
 
 (: bitvector-length (bitvector -> integer))
