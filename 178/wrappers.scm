@@ -3,23 +3,68 @@
 (: make-bitvector (integer #!optional bit -> bitvector))
 (define make-bitvector
   (case-lambda
-    ((size) (W (make-u8vector size)))
-    ((size bit) (W (make-u8vector size (I bit))))))
+    ((size)
+     (assert-type 'make-bitvector (exact-integer? size))
+     (W (make-u8vector size)))
+    ((size bit)
+     (assert-type 'make-bitvector (exact-integer? size))
+     (assert-type 'make-bitvector (%bit? bit))
+     (W (make-u8vector size (I bit))))))
 
 (: bitvector-copy (bitvector #!optional integer integer -> bitvector))
 (define bitvector-copy
   (case-lambda
-    ((bvec) (W (u8vector-copy (U bvec))))
-    ((bvec start) (W (u8vector-copy (U bvec) start)))
-    ((bvec start end) (W (u8vector-copy (U bvec) start end)))))
+    ((bvec)
+     (assert-type 'bitvector-copy (bitvector? bvec))
+     (W (u8vector-copy (U bvec))))
+    ((bvec start)
+     (assert-type 'bitvector-copy (bitvector? bvec))
+     (assert-type 'bitvector-copy (exact-integer? start))
+     (unless (<= start (bitvector-length bvec))
+       (bounds-exception 'bitvector-copy
+                         "invalid start index"
+                         start
+                         bvec))
+     (W (u8vector-copy (U bvec) start)))
+    ((bvec start end)
+     (assert-type 'bitvector-copy (bitvector? bvec))
+     (assert-type 'bitvector-copy (exact-integer? start))
+     (assert-type 'bitvector-copy (exact-integer? end))
+     (unless (<= 0 start end (bitvector-length bvec))
+       (bounds-exception 'bitvector-copy
+                         "invalid start, end indices"
+                         start
+                         end
+                         bvec))
+     (W (u8vector-copy (U bvec) start end)))))
 
 (: bitvector-reverse-copy
    (bitvector #!optional integer integer -> bitvector))
 (define bitvector-reverse-copy
   (case-lambda
-    ((bvec) (W (u8vector-reverse-copy (U bvec))))
-    ((bvec start) (W (u8vector-reverse-copy (U bvec) start)))
-    ((bvec start end) (W (u8vector-reverse-copy (U bvec) start end)))))
+    ((bvec)
+     (assert-type 'bitvector-reverse-copy (bitvector? bvec))
+     (W (u8vector-reverse-copy (U bvec))))
+    ((bvec start)
+     (assert-type 'bitvector-reverse-copy (bitvector? bvec))
+     (assert-type 'bitvector-reverse-copy (exact-integer? start))
+     (unless (<= 0 start (bitvector-length bvec))
+       (bounds-exception 'bitvector-copy
+                         "invalid start index"
+                         start
+                         bvec))
+     (W (u8vector-reverse-copy (U bvec) start)))
+    ((bvec start end)
+     (assert-type 'bitvector-reverse-copy (bitvector? bvec))
+     (assert-type 'bitvector-reverse-copy (exact-integer? start))
+     (assert-type 'bitvector-reverse-copy (exact-integer? end))
+     (unless (<= 0 start end (bitvector-length bvec))
+       (bounds-exception 'bitvector-copy
+                         "invalid start, end indices"
+                         start
+                         end
+                         bvec))
+     (W (u8vector-reverse-copy (U bvec) start end)))))
 
 (: bitvector-append (#!rest bitvector -> bitvector))
 (define (bitvector-append . bvecs)
@@ -27,59 +72,117 @@
 
 (: bitvector-concatenate ((list-of bitvector) -> bitvector))
 (define (bitvector-concatenate bvecs)
+  (assert-type 'bitvector-concatenate (pair-or-null? bvecs))
   (W (u8vector-concatenate (map U bvecs))))
 
 (: bitvector-append-subbitvectors (#!rest * -> bitvector))
 (define (bitvector-append-subbitvectors . args)
+  (assert-type 'bitvector-append-subbitvectors
+               (every (lambda (x)
+                        (or (bitvector? x) (exact-integer? x)))
+                      args))
   (W (apply u8vector-append-subvectors
             (map (lambda (x) (if (bitvector? x) (U x) x)) args))))
 
 (: bitvector-empty? (bitvector -> boolean))
 (define (bitvector-empty? bvec)
+  (assert-type 'bitvector-empty? (bitvector? bvec))
   (eqv? 0 (u8vector-length (U bvec))))
 
 (: bitvector=? (#!rest bitvector -> boolean))
 (define (bitvector=? . bvecs)
+  (assert-type 'bitvector=? (every bitvector? bvecs))
   (apply u8vector= (map U bvecs)))
 
 (: bitvector-ref/int (bitvector integer -> integer))
 (define (bitvector-ref/int bvec i)
+  (assert-type 'bitvector-ref/int (bitvector? bvec))
+  (assert-type 'bitvector-ref/int (exact-integer? i))
+  (unless (<= 0 i (bitvector-length bvec))
+    (bounds-exception 'bitvector-ref/int
+                      "index out of bounds"
+                      i
+                      bvec))
   (u8vector-ref (U bvec) i))
 
 (: bitvector-ref/bool (bitvector integer -> boolean))
 (define (bitvector-ref/bool bvec i)
+  (assert-type 'bitvector-ref/bool (bitvector? bvec))
+  (assert-type 'bitvector-ref/bool (exact-integer? i))
+  (unless (<= 0 i (bitvector-length bvec))
+    (bounds-exception 'bitvector-ref/bool
+                      "index out of bounds"
+                      i
+                      bvec))
   (B (u8vector-ref (U bvec) i)))
 
 (: bitvector-length (bitvector -> integer))
 (define (bitvector-length bvec)
+  (assert-type 'bitvector-length (bitvector? bvec))
   (u8vector-length (U bvec)))
 
 (: bitvector-take (bitvector integer -> bitvector))
 (define (bitvector-take bvec n)
+  (assert-type 'bitvector-take (bitvector? bvec))
+  (assert-type 'bitvector-take (exact-integer? n))
+  (unless (<= 0 n (bitvector-length bvec))
+    (bounds-exception 'bitvector-take
+                      "bitvector too short"
+                      n
+                      bvec))
   (W (u8vector-take (U bvec) n)))
 
 (: bitvector-take-right (bitvector integer -> bitvector))
 (define (bitvector-take-right bvec n)
+  (assert-type 'bitvector-take-right (bitvector? bvec))
+  (assert-type 'bitvector-take-right (exact-integer? n))
+  (unless (<= 0 n (bitvector-length bvec))
+    (bounds-exception 'bitvector-take-right
+                      "bitvector too short"
+                      n
+                      bvec))
   (W (u8vector-take-right (U bvec) n)))
 
 (: bitvector-drop (bitvector integer -> bitvector))
 (define (bitvector-drop bvec n)
+  (assert-type 'bitvector-drop (bitvector? bvec))
+  (assert-type 'bitvector-drop (exact-integer? n))
+  (unless (<= 0 n (bitvector-length bvec))
+    (bounds-exception 'bitvector-drop
+                      "bitvector too short"
+                      n
+                      bvec))
   (W (u8vector-drop (U bvec) n)))
 
 (: bitvector-drop-right (bitvector integer -> bitvector))
 (define (bitvector-drop-right bvec n)
+  (assert-type 'bitvector-drop-right (bitvector? bvec))
+  (assert-type 'bitvector-drop-right (exact-integer? n))
+  (unless (<= 0 n (bitvector-length bvec))
+    (bounds-exception 'bitvector-drop-right
+                      "bitvector too short"
+                      n
+                      bvec))
   (W (u8vector-drop-right (U bvec) n)))
 
 (: bitvector-segment (bitvector integer -> (list-of bitvector)))
 (define (bitvector-segment bvec n)
+  (assert-type 'bitvector-segment (bitvector? bvec))
+  (assert-type 'bitvector-segment (exact-natural? n))
+  (when (zero? n)
+    (error 'bitvector-segment "invalid segment length" n))
   (map W (u8vector-segment (U bvec) n)))
 
 (: bitvector-fold/int (procedure * #!rest bitvector -> *))
 (define bitvector-fold/int
   (case-lambda
     ((kons knil bvec)
+     (assert-type 'bitvector-fold/int (procedure? kons))
+     (assert-type 'bitvector-fold/int (bitvector? bvec))
      (u8vector-fold kons knil (U bvec)))  ; fast path
     ((kons knil . bvecs)
+     (assert-type 'bitvector-fold/int (procedure? kons))
+     (assert-type 'bitvector-fold/int (every bitvector? bvecs))
      (apply u8vector-fold kons knil (map U bvecs)))))
 
 (: bitvector-fold/bool (procedure * #!rest bitvector -> *))
@@ -87,11 +190,13 @@
   (case-lambda
     ((kons knil bvec)
      (assert-type 'bitvector-fold/bool (procedure? kons))
+     (assert-type 'bitvector-fold/bool (bitvector? bvec))
      (u8vector-fold (lambda (x b) (kons x (B b)))  ; fast path
                     knil
                     (U bvec)))
     ((kons knil . bvecs)
      (assert-type 'bitvector-fold/bool (procedure? kons))
+     (assert-type 'bitvector-fold/int (every bitvector? bvecs))
      (apply u8vector-fold
             (lambda (x . bits)
               (apply kons x (map bit->boolean bits)))
@@ -103,9 +208,11 @@
   (case-lambda
     ((kons knil bvec)
      (assert-type 'bitvector-fold-right/int (procedure? kons))
+     (assert-type 'bitvector-fold-right/int (bitvector? bvec))
      (u8vector-fold-right kons knil (U bvec)))    ; fast path
     ((kons knil . bvecs)
      (assert-type 'bitvector-fold-right/int (procedure? kons))
+     (assert-type 'bitvector-fold-right/int (every bitvector? bvecs))
      (apply u8vector-fold-right kons knil (map U bvecs)))))
 
 (: bitvector-fold-right/bool (procedure * #!rest bitvector -> *))
@@ -113,11 +220,13 @@
   (case-lambda
     ((kons knil bvec)
      (assert-type 'bitvector-fold-right/bool (procedure? kons))
+     (assert-type 'bitvector-fold-right/bool (bitvector? bvec))
      (u8vector-fold-right (lambda (x bit) (kons x (B bit)))  ; fast path
                           knil
                           (U bvec)))
     ((kons knil . bvecs)
      (assert-type 'bitvector-fold-right/bool (procedure? kons))
+     (assert-type 'bitvector-fold-right/bool (every bitvector? bvecs))
      (apply u8vector-fold-right
             (lambda (x . bits)
               (apply kons x (map bit->boolean bits)))
@@ -129,12 +238,16 @@
   (case-lambda
     ((f bvec)
      (assert-type 'bitvector-map/int (procedure? f))
+     (assert-type 'bitvector-map/int (bitvector? bvec))
      (W (u8vector-map f (U bvec))))        ; one-bitvector fast path
     ((f bvec1 bvec2)
      (assert-type 'bitvector-map/int (procedure? f))
+     (assert-type 'bitvector-map/int (bitvector? bvec1))
+     (assert-type 'bitvector-map/int (bitvector? bvec2))
      (%bitvector-map2/int f bvec1 bvec2))  ; two-bitvector fast path
     ((f . bvecs)
      (assert-type 'bitvector-map/int (procedure? f))
+     (assert-type 'bitvector-map/int (every bitvector? bvecs))
      (W (apply u8vector-map f (map U bvecs))))))  ; normal path
 
 ;; Tuned two-bitvector version, mainly for binary logical ops.
@@ -151,12 +264,16 @@
   (case-lambda
     ((f bvec)          ; one-bitvector fast path
      (assert-type 'bitvector-map/bool (procedure? f))
+     (assert-type 'bitvector-map/bool (bitvector? bvec))
      (W (u8vector-map (lambda (n) (I (f (B n)))) (U bvec))))
     ((f bvec1 bvec2)   ; two-bitvector fast path
      (assert-type 'bitvector-map/bool (procedure? f))
+     (assert-type 'bitvector-map/bool (bitvector? bvec1))
+     (assert-type 'bitvector-map/bool (bitvector? bvec2))
      (%bitvector-map2/int (lambda (n m) (I (f (B n) (B m)))) bvec1 bvec2))
     ((f . bvecs)       ; normal path (ugh)
      (assert-type 'bitvector-map/bool (procedure? f))
+     (assert-type 'bitvector-map/bool (every bitvector? bvecs))
      (W (apply u8vector-map
                (lambda ns (I (apply f (map bit->boolean ns))))
                (map U bvecs))))))
@@ -166,12 +283,16 @@
   (case-lambda
     ((f bvec)
      (assert-type 'bitvector-map!/int (procedure? f))
+     (assert-type 'bitvector-map!/int (bitvector? bvec))
      (u8vector-map! f (U bvec)))            ; one-bitvector fast path
     ((f bvec1 bvec2)
      (assert-type 'bitvector-map!/int (procedure? f))
+     (assert-type 'bitvector-map!/int (bitvector? bvec1))
+     (assert-type 'bitvector-map!/int (bitvector? bvec2))
      (%bitvector-map2!/int f bvec1 bvec2))  ; two-bitvector fast path
     ((f . bvecs)
      (assert-type 'bitvector-map!/int (procedure? f))
+     (assert-type 'bitvector-map!/int (every bitvector? bvecs))
      (apply u8vector-map! f (map U bvecs)))))  ; normal path
 
 ;; Tuned two-bitvector version, mainly for binary logical ops.
@@ -191,12 +312,16 @@
   (case-lambda
     ((f bvec)          ; one-bitvector fast path
      (assert-type 'bitvector-map!/bool (procedure? f))
+     (assert-type 'bitvector-map!/bool (bitvector? bvec))
      (u8vector-map! (lambda (n) (I (f (B n)))) (U bvec)))
     ((f bvec1 bvec2)   ; two-bitvector fast path
      (assert-type 'bitvector-map!/bool (procedure? f))
+     (assert-type 'bitvector-map!/bool (bitvector? bvec1))
+     (assert-type 'bitvector-map!/bool (bitvector? bvec2))
      (%bitvector-map2!/int (lambda (n m) (I (f (B n) (B m)))) bvec1 bvec2))
     ((f . bvecs)       ; normal path (ugh)
      (assert-type 'bitvector-map!/bool (procedure? f))
+     (assert-type 'bitvector-map!/bool (every bitvector? bvecs))
      (apply u8vector-map!
             (lambda ns (I (apply f (map bit->boolean ns))))
             (map U bvecs)))))
@@ -206,9 +331,11 @@
   (case-lambda
     ((f bvec)
      (assert-type 'bitvector-for-each/int (procedure? f))
+     (assert-type 'bitvector-for-each/int (bitvector? bvec))
      (u8vector-for-each f (U bvec)))    ; fast path
     ((f . bvecs)
      (assert-type 'bitvector-for-each/int (procedure? f))
+     (assert-type 'bitvector-for-each/int (every bitvector? bvecs))
      (apply u8vector-for-each f (map U bvecs)))))
 
 (: bitvector-for-each/bool (procedure #!rest bitvector -> undefined))
@@ -216,29 +343,48 @@
   (case-lambda
     ((f bvec)
      (assert-type 'bitvector-for-each/bool (procedure? f))
+     (assert-type 'bitvector-for-each/bool (bitvector? bvec))
      (u8vector-for-each (lambda (n) (f (B n))) (U bvec)))    ; fast path
     ((f . bvecs)
      (assert-type 'bitvector-for-each/bool (procedure? f))
+     (assert-type 'bitvector-for-each/bool (every bitvector? bvecs))
      (apply u8vector-for-each
             (lambda ns (apply f (map bit->boolean ns)))
             (map U bvecs)))))
 
 (: bitvector-set! (bitvector integer bit -> undefined))
 (define (bitvector-set! bvec i bit)
+  (assert-type 'bitvector-set! (bitvector? bvec))
+  (assert-type 'bitvector-set! (exact-integer? i))
+  (assert-type 'bitvector-set! (%bit? bit))
+  (%check-index 'bitvector-set! bvec i)
   (u8vector-set! (U bvec) i (I bit)))
 
 (: bitvector-swap! (bitvector integer integer -> undefined))
 (define (bitvector-swap! bvec i j)
+  (assert-type 'bitvector-swap! (bitvector? bvec))
+  (assert-type 'bitvector-swap! (exact-integer? i))
+  (assert-type 'bitvector-swap! (exact-integer? j))
+  (%check-index 'bitvector-swap! bvec i)
+  (%check-index 'bitvector-swap! bvec j)
   (u8vector-swap! (U bvec) i j))
 
 (: bitvector-reverse! (bitvector #!optional integer integer -> undefined))
 (define bitvector-reverse!
   (case-lambda
     ((bvec)
+     (assert-type 'bitvector-reverse! (bitvector? bvec))
      (u8vector-reverse! (U bvec)))
     ((bvec start)
+     (assert-type 'bitvector-reverse! (bitvector? bvec))
+     (assert-type 'bitvector-reverse! (exact-integer? start))
+     (%check-index 'bitvector-reverse! bvec start)
      (u8vector-reverse! (U bvec) start))
     ((bvec start end)
+     (assert-type 'bitvector-reverse! (bitvector? bvec))
+     (assert-type 'bitvector-reverse! (exact-integer? start))
+     (assert-type 'bitvector-reverse! (exact-integer? end))
+     (%check-range 'bitvector-reverse! bvec start end)
      (u8vector-reverse! (U bvec) start end))))
 
 (: bitvector-copy!

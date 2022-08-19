@@ -113,6 +113,18 @@
       (make-property-condition 'bounds)
       (make-property-condition 'assertion))))
 
+  (define (%check-index loc bvec i)
+    (unless (<= 0 i (bitvector-length bvec))
+      (bounds-exception loc "index out of bounds" i bvec)))
+
+  (define (%check-range loc bvec start end)
+    (unless (<= 0 start end (bitvector-length bvec))
+      (bounds-exception loc
+                        "invalid range"
+                        start
+                        end
+                        bvec)))
+
   (include "r7rs-shim.scm")
   (include "178/util.scm")
   (include "178/macros.scm")

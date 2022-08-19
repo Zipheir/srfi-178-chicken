@@ -5,3 +5,6 @@
   (cond ((boolean? x) #t)
         ((integer? x) (or (zero? x) (= x 1)))
         (else #f)))
+
+(define (pair-or-null? x)
+  (or (pair? x) (null? x)))
