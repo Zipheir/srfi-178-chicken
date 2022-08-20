@@ -93,12 +93,7 @@
      (assert-type 'reverse-bitvector->vector/int (bitvector? bvec))
      (assert-type 'reverse-bitvector->vector/int (exact-natural? start))
      (assert-type 'reverse-bitvector->vector/int (exact-natural? end))
-     (unless (<= 0 start end (bitvector-length bvec))
-       (bounds-exception 'reverse-bitvector->vector/int
-                         "invalid start, end indices"
-                         start
-                         end
-                         bvec))
+     (%check-range 'reverse-bitvector->vector/int bvec start end)
      (let ((u8vec (U bvec)))
        (vector-unfold (lambda (i)
                         (u8vector-ref u8vec (- end 1 i)))
@@ -116,12 +111,7 @@
      (assert-type 'reverse-bitvector->vector/bool (bitvector? bvec))
      (assert-type 'reverse-bitvector->vector/bool (exact-natural? start))
      (assert-type 'reverse-bitvector->vector/bool (exact-natural? end))
-     (unless (<= 0 start end (bitvector-length bvec))
-       (bounds-exception 'reverse-bitvector->vector/bool
-                         "invalid start, end indices"
-                         start
-                         end
-                         bvec))
+     (%check-range 'reverse-bitvector->vector/bool bvec start end)
      (let ((u8vec (U bvec)))
        (vector-unfold (lambda (i)
                         (B (u8vector-ref u8vec (- end 1 i))))
