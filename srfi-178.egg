@@ -3,7 +3,7 @@
  (maintainer "Wolfgang Corcoran-Mathe")
  (category data)
  (license "MIT")
- (version "0.2")
+ (version "1.0.1")
  (dependencies srfi-151 srfi-160 srfi-141)
  (test-dependencies test)
  (components
