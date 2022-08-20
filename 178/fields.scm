@@ -71,7 +71,8 @@
   (assert-type 'bitvector-field-replace (bitvector? source))
   (assert-type 'bitvector-field-replace (exact-integer? start))
   (assert-type 'bitvector-field-replace (exact-integer? end))
-  (%check-range 'bitvector-field-replace bvec start end)
+  (%check-range 'bitvector-field-replace dest start end)
+  (%check-range 'bitvector-field-replace source 0 (- end start))
   (bitvector-unfold
    (lambda (i)
      (if (and (>= i start) (< i end))
@@ -86,7 +87,8 @@
   (assert-type 'bitvector-field-replace! (bitvector? source))
   (assert-type 'bitvector-field-replace! (exact-integer? start))
   (assert-type 'bitvector-field-replace! (exact-integer? end))
-  (%check-range 'bitvector-field-replace! bvec start end)
+  (%check-range 'bitvector-field-replace! dest start end)
+  (%check-range 'bitvector-field-replace source 0 (- end start))
   (bitvector-copy! dest start source 0 (- end start)))
 
 (: bitvector-field-replace-same
@@ -96,7 +98,8 @@
   (assert-type 'bitvector-field-replace-same (bitvector? source))
   (assert-type 'bitvector-field-replace-same (exact-integer? start))
   (assert-type 'bitvector-field-replace-same (exact-integer? end))
-  (%check-range 'bitvector-field-replace-same bvec start end)
+  (%check-range 'bitvector-field-replace-same dest start end)
+  (%check-range 'bitvector-field-replace-same source start end)
   (bitvector-unfold
    (lambda (i)
      (bitvector-ref/int (if (and (>= i start) (< i end))
@@ -112,7 +115,8 @@
   (assert-type 'bitvector-field-replace-same! (bitvector? source))
   (assert-type 'bitvector-field-replace-same! (exact-integer? start))
   (assert-type 'bitvector-field-replace-same! (exact-integer? end))
-  (%check-range 'bitvector-field-replace-same! bvec start end)
+  (%check-range 'bitvector-field-replace-same! dest start end)
+  (%check-range 'bitvector-field-replace-same! source start end)
   (bitvector-copy! dest start source start end))
 
 (: bitvector-field-rotate (bitvector integer integer integer -> bitvector))
