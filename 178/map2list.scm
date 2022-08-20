@@ -11,6 +11,8 @@
     ((f . bvecs)
      (assert-type 'bitvector-map->list/int (procedure? f))
      (assert-type 'bitvector-map->list/int (every bitvector? bvecs))
+     (when (null? bvecs)
+       (arity-exception 'bitvector-map->list/int bvecs))
      (apply bitvector-fold-right/int
             (lambda (xs . bs) (cons (apply f bs) xs))
             '()
@@ -29,6 +31,8 @@
     ((f . bvecs)
      (assert-type 'bitvector-map->list/bool (procedure? f))
      (assert-type 'bitvector-map->list/bool (every bitvector? bvecs))
+     (when (null? bvecs)
+       (arity-exception 'bitvector-map->list/bool bvecs))
      (apply bitvector-fold-right/bool
             (lambda (xs . bs) (cons (apply f bs) xs))
             '()
