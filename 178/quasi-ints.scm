@@ -11,7 +11,7 @@
 
 (: %bitvector-left-shift (bitvector integer integer -> bitvector))
 (define (%bitvector-left-shift bvec count bit)
-  (let ((len (bitvector-length bvec)))
+  (let ((len (%bitvector-length-no-checks bvec)))
     (%bitvector-unfold-no-checks
      (lambda (i)
        (let ((i* (+ i count)))
@@ -25,7 +25,7 @@
      (if (< i count)
          bit
          (%bitvector-ref/int-no-checks bvec (- i count))))
-   (bitvector-length bvec)))
+   (%bitvector-length-no-checks bvec)))
 
 (: bitvector-count (bit bitvector --> integer))
 (define (bitvector-count bit bvec)
@@ -42,7 +42,7 @@
   (assert-type 'bitvector-count-run (bitvector? bvec))
   (assert-type 'bitvector-count-run (exact-natural? index))
   (let ((int (I bit))
-        (len (bitvector-length bvec)))
+        (len (%bitvector-length-no-checks bvec)))
     (let lp ((i index) (c 0))
       (if (or (>= i len)
               (not (= int (%bitvector-ref/int-no-checks bvec i))))
@@ -61,7 +61,7 @@
 (define (bitvector-first-bit bit bvec)
   (assert-type 'bitvector-first-bit (%bit? bit))
   (assert-type 'bitvector-first-bit (bitvector? bvec))
-  (let ((int (I bit)) (len (bitvector-length bvec)))
+  (let ((int (I bit)) (len (%bitvector-length-no-checks bvec)))
     (let lp ((i 0))
       (cond ((>= i len) -1)
             ((= int (%bitvector-ref/int-no-checks bvec i)) i)

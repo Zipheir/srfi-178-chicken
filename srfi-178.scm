@@ -124,11 +124,11 @@
       (make-property-condition 'assertion))))
 
   (define (%check-index loc bvec i)
-    (unless (<= 0 i (bitvector-length bvec))
+    (unless (<= 0 i (%bitvector-length-no-checks bvec))
       (bounds-exception loc "index out of bounds" i bvec)))
 
   (define (%check-range loc bvec start end)
-    (unless (<= 0 start end (bitvector-length bvec))
+    (unless (<= 0 start end (%bitvector-length-no-checks bvec))
       (bounds-exception loc
                         "invalid range"
                         start

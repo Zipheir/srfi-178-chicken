@@ -2,7 +2,8 @@
 (define (bitvector-prefix-length bvec1 bvec2)
   (assert-type 'bitvector-prefix-length (bitvector? bvec1))
   (assert-type 'bitvector-prefix-length (bitvector? bvec2))
-  (let ((end (min (bitvector-length bvec1) (bitvector-length bvec2))))
+  (let ((end (min (%bitvector-length-no-checks bvec1)
+                  (%bitvector-length-no-checks bvec2))))
     (if (eqv? bvec1 bvec2)
         end
         (let lp ((i 0))
@@ -16,8 +17,8 @@
 (define (bitvector-suffix-length bvec1 bvec2)
   (assert-type 'bitvector-suffix-length (bitvector? bvec1))
   (assert-type 'bitvector-suffix-length (bitvector? bvec2))
-  (let ((end1 (bitvector-length bvec1))
-        (end2 (bitvector-length bvec2)))
+  (let ((end1 (%bitvector-length-no-checks bvec1))
+        (end2 (%bitvector-length-no-checks bvec2)))
     (let* ((delta (min end1 end2))
            (start (- end1 delta)))
       (if (eqv? bvec1 bvec2)
@@ -33,16 +34,16 @@
 (define (bitvector-prefix? bvec1 bvec2)
   (assert-type 'bitvector-prefix? (bitvector? bvec1))
   (assert-type 'bitvector-prefix? (bitvector? bvec2))
-  (let ((len1 (bitvector-length bvec1)))
-    (and (<= len1 (bitvector-length bvec2))
+  (let ((len1 (%bitvector-length-no-checks bvec1)))
+    (and (<= len1 (%bitvector-length-no-checks bvec2))
          (= (bitvector-prefix-length bvec1 bvec2) len1))))
 
 (: bitvector-suffix? (bitvector bitvector --> boolean))
 (define (bitvector-suffix? bvec1 bvec2)
   (assert-type 'bitvector-suffix? (bitvector? bvec1))
   (assert-type 'bitvector-suffix? (bitvector? bvec2))
-  (let ((len1 (bitvector-length bvec1)))
-    (and (<= len1 (bitvector-length bvec2))
+  (let ((len1 (%bitvector-length-no-checks bvec1)))
+    (and (<= len1 (%bitvector-length-no-checks bvec2))
          (= (bitvector-suffix-length bvec1 bvec2) len1))))
 
 (: bitvector-pad (bit bitvector integer -> bitvector))
@@ -50,7 +51,7 @@
   (assert-type 'bitvector-pad (%bit? bit))
   (assert-type 'bitvector-pad (bitvector? bvec))
   (assert-type 'bitvector-pad (exact-natural? len))
-  (let ((old-len (bitvector-length bvec)))
+  (let ((old-len (%bitvector-length-no-checks bvec)))
     (if (<= len old-len)
         bvec
         (let ((result (make-bitvector len bit)))
@@ -62,7 +63,7 @@
   (assert-type 'bitvector-pad-right (%bit? bit))
   (assert-type 'bitvector-pad-right (bitvector? bvec))
   (assert-type 'bitvector-pad-right (exact-natural? len))
-  (if (<= len (bitvector-length bvec))
+  (if (<= len (%bitvector-length-no-checks bvec))
       bvec
       (let ((result (make-bitvector len bit)))
         (bitvector-copy! result 0 bvec)
@@ -70,7 +71,7 @@
 
 (: %bitvector-skip (bitvector bit --> (or integer false)))
 (define (%bitvector-skip bvec bit)
-  (let ((len (bitvector-length bvec))
+  (let ((len (%bitvector-length-no-checks bvec))
         (int (bit->integer bit)))
     (let lp ((i 0))
       (and (< i len)
@@ -80,7 +81,7 @@
 
 (: %bitvector-skip-right (bitvector bit -> (or integer false)))
 (define (%bitvector-skip-right bvec bit)
-  (let ((len (bitvector-length bvec))
+  (let ((len (%bitvector-length-no-checks bvec))
         (int (bit->integer bit)))
     (let lp ((i (- len 1)))
       (and (>= i 0)
@@ -94,7 +95,7 @@
   (assert-type 'bitvector-trim (bitvector? bvec))
   (cond ((%bitvector-skip bvec bit) =>
          (lambda (skip)
-           (bitvector-copy bvec skip (bitvector-length bvec))))
+           (bitvector-copy bvec skip (%bitvector-length-no-checks bvec))))
         (else (bitvector))))
 
 (: bitvector-trim-right (bit bitvector -> bitvector))

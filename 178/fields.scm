@@ -26,7 +26,7 @@
      (if (and (>= i start) (< i end))
          bit
          (%bitvector-ref/int-no-checks bvec i)))
-   (bitvector-length bvec)))
+   (%bitvector-length-no-checks bvec)))
 
 (: bitvector-field-clear (bitvector integer integer -> bitvector))
 (define (bitvector-field-clear bvec start end)
@@ -78,7 +78,7 @@
      (if (and (>= i start) (< i end))
          (%bitvector-ref/int-no-checks source (- i start))
          (%bitvector-ref/int-no-checks dest i)))
-   (bitvector-length dest)))
+   (%bitvector-length-no-checks dest)))
 
 (: bitvector-field-replace!
    (bitvector bitvector integer integer -> undefined))
@@ -106,7 +106,7 @@
                                        source
                                        dest)
                                    i))
-   (bitvector-length dest)))
+   (%bitvector-length-no-checks dest)))
 
 (: bitvector-field-replace-same!
    (bitvector bitvector integer integer -> undefined))
@@ -136,7 +136,7 @@
                 bvec
                 (+ start (floor-remainder (+ (- i start) count) field-len)))
                (%bitvector-ref/int-no-checks bvec i)))
-         (bitvector-length bvec)))))
+         (%bitvector-length-no-checks bvec)))))
 
 (: bitvector-field-flip (bitvector integer integer -> bitvector))
 (define (bitvector-field-flip bvec start end)
@@ -149,7 +149,7 @@
      (I (if (and (>= i start) (< i end))
             (not (%bitvector-ref/bool-no-checks bvec i))
             (%bitvector-ref/bool-no-checks bvec i))))
-   (bitvector-length bvec)))
+   (%bitvector-length-no-checks bvec)))
 
 (: bitvector-field-flip! (bitvector integer integer -> undefined))
 (define (bitvector-field-flip! bvec start end)

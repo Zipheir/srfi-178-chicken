@@ -17,7 +17,7 @@
      (assert-type 'bitvector-copy (bitvector? bvec))
      (W (u8vector-copy (U bvec))))
     ((bvec start)
-     (bitvector-copy bvec start (bitvector-length bvec)))
+     (bitvector-copy bvec start (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'bitvector-copy (bitvector? bvec))
      (assert-type 'bitvector-copy (exact-integer? start))
@@ -33,7 +33,9 @@
      (assert-type 'bitvector-reverse-copy (bitvector? bvec))
      (W (u8vector-reverse-copy (U bvec))))
     ((bvec start)
-     (bitvector-reverse-copy bvec start (bitvector-length bvec)))
+     (bitvector-reverse-copy bvec
+                             start
+                             (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'bitvector-reverse-copy (bitvector? bvec))
      (assert-type 'bitvector-reverse-copy (exact-integer? start))
@@ -98,11 +100,17 @@
   (assert-type 'bitvector-length (bitvector? bvec))
   (u8vector-length (U bvec)))
 
+;; Fast version for internal use.  Since this is used everywhere,
+;; let's avoid the type check.
+(: %bitvector-length-no-checks (bitvector -> integer))
+(define (%bitvector-length-no-checks bvec)
+  (u8vector-length (U bvec)))
+
 (: bitvector-take (bitvector integer -> bitvector))
 (define (bitvector-take bvec n)
   (assert-type 'bitvector-take (bitvector? bvec))
   (assert-type 'bitvector-take (exact-integer? n))
-  (unless (<= 0 n (bitvector-length bvec))
+  (unless (<= 0 n (%bitvector-length-no-checks bvec))
     (bounds-exception 'bitvector-take
                       "bitvector too short"
                       n
@@ -113,7 +121,7 @@
 (define (bitvector-take-right bvec n)
   (assert-type 'bitvector-take-right (bitvector? bvec))
   (assert-type 'bitvector-take-right (exact-integer? n))
-  (unless (<= 0 n (bitvector-length bvec))
+  (unless (<= 0 n (%bitvector-length-no-checks bvec))
     (bounds-exception 'bitvector-take-right
                       "bitvector too short"
                       n
@@ -124,7 +132,7 @@
 (define (bitvector-drop bvec n)
   (assert-type 'bitvector-drop (bitvector? bvec))
   (assert-type 'bitvector-drop (exact-integer? n))
-  (unless (<= 0 n (bitvector-length bvec))
+  (unless (<= 0 n (%bitvector-length-no-checks bvec))
     (bounds-exception 'bitvector-drop
                       "bitvector too short"
                       n
@@ -135,7 +143,7 @@
 (define (bitvector-drop-right bvec n)
   (assert-type 'bitvector-drop-right (bitvector? bvec))
   (assert-type 'bitvector-drop-right (exact-integer? n))
-  (unless (<= 0 n (bitvector-length bvec))
+  (unless (<= 0 n (%bitvector-length-no-checks bvec))
     (bounds-exception 'bitvector-drop-right
                       "bitvector too short"
                       n
@@ -234,7 +242,7 @@
     (%bitvector-unfold-no-checks
      (lambda (i)
        (f (u8vector-ref u8vec1 i) (u8vector-ref u8vec2 i)))
-     (bitvector-length bvec1))))
+     (%bitvector-length-no-checks bvec1))))
 
 (: bitvector-map/bool (procedure #!rest bitvector -> bitvector))
 (define bitvector-map/bool
@@ -274,7 +282,7 @@
 
 ;; Tuned two-bitvector version, mainly for binary logical ops.
 (define (%bitvector-map2!/int f bvec1 bvec2)
-  (let ((len (bitvector-length bvec1))
+  (let ((len (%bitvector-length-no-checks bvec1))
         (u8vec1 (U bvec1))
         (u8vec2 (U bvec2)))
     (let lp ((i 0))
@@ -369,9 +377,9 @@
 (define bitvector-copy!
   (case-lambda
     ((to at from)
-     (bitvector-copy! to at from 0 (bitvector-length from)))
+     (bitvector-copy! to at from 0 (%bitvector-length-no-checks from)))
     ((to at from start)
-     (bitvector-copy! to at from start (bitvector-length from)))
+     (bitvector-copy! to at from start (%bitvector-length-no-checks from)))
     ((to at from start end)
      (assert-type 'bitvector-copy! (bitvector? to))
      (assert-type 'bitvector-copy! (exact-integer? at))
@@ -387,9 +395,13 @@
 (define bitvector-reverse-copy!
   (case-lambda
     ((to at from)
-     (bitvector-reverse-copy! to at from 0 (bitvector-length from)))
+     (bitvector-reverse-copy! to at from 0 (%bitvector-length-no-checks from)))
     ((to at from start)
-     (bitvector-reverse-copy! to at from start (bitvector-length from)))
+     (bitvector-reverse-copy! to
+                              at
+                              from
+                              start
+                              (%bitvector-length-no-checks from)))
     ((to at from start end)
      (assert-type 'bitvector-reverse-copy! (bitvector? to))
      (assert-type 'bitvector-reverse-copy! (exact-integer? at))
@@ -407,7 +419,7 @@
      (assert-type 'bitvector->list/int (bitvector? bvec))
      (u8vector->list (U bvec)))
     ((bvec start)
-     (bitvector->list/int bvec start (bitvector-length bvec)))
+     (bitvector->list/int bvec start (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'bitvector->list/int (bitvector? bvec))
      (assert-type 'bitvector->list/int (exact-integer? start))
@@ -422,7 +434,7 @@
      (assert-type 'bitvector->list/bool (bitvector? bvec))
      (map bit->boolean (u8vector->list (U bvec))))
     ((bvec start)
-     (bitvector->list/bool bvec start (bitvector-length bvec)))
+     (bitvector->list/bool bvec start (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'bitvector->list/bool (bitvector? bvec))
      (assert-type 'bitvector->list/bool (exact-integer? start))
@@ -438,7 +450,9 @@
      (assert-type 'reverse-bitvector->list/int (bitvector? bvec))
      (reverse-u8vector->list (U bvec)))
     ((bvec start)
-     (reverse-bitvector->list/int bvec start (bitvector-length bvec)))
+     (reverse-bitvector->list/int bvec
+                                  start
+                                  (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'reverse-bitvector->list/int (bitvector? bvec))
      (assert-type 'reverse-bitvector->list/int (exact-integer? start))
@@ -454,7 +468,9 @@
      (assert-type 'reverse-bitvector->list/bool (bitvector? bvec))
      (map bit->boolean (reverse-u8vector->list (U bvec))))
     ((bvec start)
-     (reverse-bitvector->list/bool bvec start (bitvector-length bvec)))
+     (reverse-bitvector->list/bool bvec
+                                   start
+                                   (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'reverse-bitvector->list/bool (bitvector? bvec))
      (assert-type 'reverse-bitvector->list/bool (exact-integer? start))
@@ -470,7 +486,7 @@
      (assert-type 'bitvector->vector/int (bitvector? bvec))
      (u8vector->vector (U bvec)))
     ((bvec start)
-     (bitvector->vector/int bvec start (bitvector-length bvec)))
+     (bitvector->vector/int bvec start (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'bitvector->vector/int (bitvector? bvec))
      (assert-type 'bitvector->vector/int (exact-integer? start))
@@ -486,7 +502,7 @@
      (assert-type 'bitvector->vector/bool (bitvector? bvec))
      (vector-map bit->boolean (u8vector->vector (U bvec))))
     ((bvec start)
-     (bitvector->vector/bool bvec start (bitvector-length bvec)))
+     (bitvector->vector/bool bvec start (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'bitvector->vector/bool (bitvector? bvec))
      (assert-type 'bitvector->vector/bool (exact-integer? start))

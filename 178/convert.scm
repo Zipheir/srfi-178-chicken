@@ -13,7 +13,7 @@
 (: bitvector->string (bitvector --> string))
 (define (bitvector->string bvec)
   (assert-type 'bitvector->string (bitvector? bvec))
-  (let loop ((i (- (bitvector-length bvec) 1))
+  (let loop ((i (- (%bitvector-length-no-checks bvec) 1))
              (r '()))
     (if (< i 0)
       (list->string (cons #\# (cons #\* r)))
@@ -89,9 +89,11 @@
 (define reverse-bitvector->vector/int
   (case-lambda
     ((bvec)
-     (reverse-bitvector->vector/int bvec 0 (bitvector-length bvec)))
+     (reverse-bitvector->vector/int bvec 0 (%bitvector-length-no-checks bvec)))
     ((bvec start)
-     (reverse-bitvector->vector/int bvec start (bitvector-length bvec)))
+     (reverse-bitvector->vector/int bvec
+                                    start
+                                    (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'reverse-bitvector->vector/int (bitvector? bvec))
      (assert-type 'reverse-bitvector->vector/int (exact-natural? start))
@@ -107,9 +109,13 @@
 (define reverse-bitvector->vector/bool
   (case-lambda
     ((bvec)
-     (reverse-bitvector->vector/bool bvec 0 (bitvector-length bvec)))
+     (reverse-bitvector->vector/bool bvec
+                                     0
+                                     (%bitvector-length-no-checks bvec)))
     ((bvec start)
-     (reverse-bitvector->vector/bool bvec start (bitvector-length bvec)))
+     (reverse-bitvector->vector/bool bvec
+                                     start
+                                     (%bitvector-length-no-checks bvec)))
     ((bvec start end)
      (assert-type 'reverse-bitvector->vector/bool (bitvector? bvec))
      (assert-type 'reverse-bitvector->vector/bool (exact-natural? start))

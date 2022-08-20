@@ -1,5 +1,5 @@
 (define (%make-bitvector-generator bvec ref-proc)
-  (let ((len (bitvector-length bvec))
+  (let ((len (%bitvector-length-no-checks bvec))
         (i 0))
     (lambda ()
       (if (= i len)
