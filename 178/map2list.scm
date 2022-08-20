@@ -3,10 +3,14 @@
 (define bitvector-map->list/int
   (case-lambda
     ((f bvec)                    ; fast path
+     (assert-type 'bitvector-map->list/int (procedure? f))
+     (assert-type 'bitvector-map->list/int (bitvector? bvec))
      (bitvector-fold-right/int (lambda (xs b) (cons (f b) xs))
                                '()
                                bvec))
     ((f . bvecs)
+     (assert-type 'bitvector-map->list/int (procedure? f))
+     (assert-type 'bitvector-map->list/int (every bitvector? bvecs))
      (apply bitvector-fold-right/int
             (lambda (xs . bs) (cons (apply f bs) xs))
             '()
@@ -17,10 +21,14 @@
 (define bitvector-map->list/bool
   (case-lambda
     ((f bvec)                    ; fast path
+     (assert-type 'bitvector-map->list/bool (procedure? f))
+     (assert-type 'bitvector-map->list/bool (bitvector? bvec))
      (bitvector-fold-right/bool (lambda (xs b) (cons (f b) xs))
                                 '()
                                 bvec))
     ((f . bvecs)
+     (assert-type 'bitvector-map->list/bool (procedure? f))
+     (assert-type 'bitvector-map->list/bool (every bitvector? bvecs))
      (apply bitvector-fold-right/bool
             (lambda (xs . bs) (cons (apply f bs) xs))
             '()
