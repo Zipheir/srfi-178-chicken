@@ -4,10 +4,12 @@
 
 (: bitvector-not (bitvector -> bitvector))
 (define (bitvector-not avec)
+  (assert-type 'bitvector-not (bitvector? avec))
   (bitvector-map/int u1-not avec))
 
 (: bitvector-not! (bitvector -> undefined))
 (define (bitvector-not! avec)
+  (assert-type 'bitvector-not! (bitvector? avec))
   (bitvector-map!/int u1-not avec))
 
 (: u1-and (#!rest fixnum --> fixnum))
@@ -16,10 +18,16 @@
 
 (: bitvector-and (#!rest bitvector -> bitvector))
 (define (bitvector-and  . vecs)
+  (assert-type 'bitvector-and (every bitvector? vecs))
+  (when (< (length vecs) 2)
+    (arity-exception 'bitvector-and vecs))
   (apply bitvector-map/int u1-and vecs))
 
 (: bitvector-and! (#!rest bitvector -> undefined))
 (define (bitvector-and!  . vecs)
+  (assert-type 'bitvector-and! (every bitvector? vecs))
+  (when (< (length vecs) 2)
+    (arity-exception 'bitvector-and! vecs))
   (apply bitvector-map!/int u1-and vecs))
 
 (: u1-ior (#!rest fixnum --> fixnum))
@@ -28,10 +36,16 @@
 
 (: bitvector-ior (#!rest bitvector -> bitvector))
 (define (bitvector-ior . vecs)
+  (assert-type 'bitvector-ior (every bitvector? vecs))
+  (when (< (length vecs) 2)
+    (arity-exception 'bitvector-ior vecs))
   (apply bitvector-map/int u1-ior vecs))
 
 (: bitvector-ior! (#!rest bitvector -> undefined))
 (define (bitvector-ior! . vecs)
+  (assert-type 'bitvector-ior! (every bitvector? vecs))
+  (when (< (length vecs) 2)
+    (arity-exception 'bitvector-ior! vecs))
   (apply bitvector-map!/int u1-ior vecs))
 
 (: u1-xor (#!rest fixnum --> fixnum))
@@ -40,10 +54,16 @@
 
 (: bitvector-xor (#!rest bitvector -> bitvector))
 (define (bitvector-xor . vecs)
+  (assert-type 'bitvector-xor (every bitvector? vecs))
+  (when (< (length vecs) 2)
+    (arity-exception 'bitvector-xor vecs))
   (apply bitvector-map/int u1-xor vecs))
 
 (: bitvector-xor! (#!rest bitvector -> undefined))
 (define (bitvector-xor! . vecs)
+  (assert-type 'bitvector-xor! (every bitvector? vecs))
+  (when (< (length vecs) 2)
+    (arity-exception 'bitvector-xor! vecs))
   (apply bitvector-map!/int u1-xor vecs))
 
 (: u1-eqv (#!rest fixnum --> fixnum))
@@ -55,10 +75,16 @@
 
 (: bitvector-eqv (#!rest bitvector -> bitvector))
 (define (bitvector-eqv . vecs)
+  (assert-type 'bitvector-eqv (every bitvector? vecs))
+  (when (< (length vecs) 2)
+    (arity-exception 'bitvector-eqv vecs))
   (apply bitvector-map/int u1-eqv vecs))
 
 (: bitvector-eqv (#!rest bitvector -> undefined))
 (define (bitvector-eqv! . vecs)
+  (assert-type 'bitvector-eqv! (every bitvector? vecs))
+  (when (< (length vecs) 2)
+    (arity-exception 'bitvector-eqv! vecs))
   (apply bitvector-map!/int u1-eqv vecs))
 
 (: u1-nand (fixnum fixnum --> fixnum))
@@ -67,10 +93,14 @@
 
 (: bitvector-nand (bitvector bitvector -> bitvector))
 (define (bitvector-nand a b)
+  (assert-type 'bitvector-nand (bitvector? a))
+  (assert-type 'bitvector-nand (bitvector? b))
   (bitvector-map/int u1-nand a b))
 
 (: bitvector-nand! (bitvector bitvector -> undefined))
 (define (bitvector-nand! a b)
+  (assert-type 'bitvector-nand! (bitvector? a))
+  (assert-type 'bitvector-nand! (bitvector? b))
   (bitvector-map!/int u1-nand a b))
 
 (: u1-nor (fixnum fixnum --> fixnum))
@@ -79,10 +109,14 @@
 
 (: bitvector-nor (bitvector bitvector -> bitvector))
 (define (bitvector-nor a b)
+  (assert-type 'bitvector-nor (bitvector? a))
+  (assert-type 'bitvector-nor (bitvector? b))
   (bitvector-map/int u1-nor a b))
 
 (: bitvector-nor! (bitvector bitvector -> undefined))
 (define (bitvector-nor! a b)
+  (assert-type 'bitvector-nor! (bitvector? a))
+  (assert-type 'bitvector-nor! (bitvector? b))
   (bitvector-map!/int u1-nor a b))
 
 (: u1-andc1 (fixnum fixnum --> fixnum))
@@ -91,10 +125,14 @@
 
 (: bitvector-andc1 (bitvector bitvector -> bitvector))
 (define (bitvector-andc1 a b)
+  (assert-type 'bitvector-andc1 (bitvector? a))
+  (assert-type 'bitvector-andc1 (bitvector? b))
   (bitvector-map/int u1-andc1 a b))
 
 (: bitvector-andc1! (bitvector bitvector -> undefined))
 (define (bitvector-andc1! a b)
+  (assert-type 'bitvector-andc1! (bitvector? a))
+  (assert-type 'bitvector-andc1! (bitvector? b))
   (bitvector-map!/int u1-andc1 a b))
 
 (: u1-andc2 (fixnum fixnum --> fixnum))
@@ -103,10 +141,14 @@
 
 (: bitvector-andc2 (bitvector bitvector -> bitvector))
 (define (bitvector-andc2 a b)
+  (assert-type 'bitvector-andc2 (bitvector? a))
+  (assert-type 'bitvector-andc2 (bitvector? b))
   (bitvector-map/int u1-andc2 a b))
 
 (: bitvector-andc2! (bitvector bitvector -> undefined))
 (define (bitvector-andc2! a b)
+  (assert-type 'bitvector-andc2! (bitvector? a))
+  (assert-type 'bitvector-andc2! (bitvector? b))
   (bitvector-map!/int u1-andc2 a b))
 
 (: u1-orc1 (fixnum fixnum --> fixnum))
@@ -115,10 +157,14 @@
 
 (: bitvector-orc1 (bitvector bitvector -> bitvector))
 (define (bitvector-orc1 a b)
+  (assert-type 'bitvector-orc1 (bitvector? a))
+  (assert-type 'bitvector-orc1 (bitvector? b))
   (bitvector-map/int u1-orc1 a b))
 
 (: bitvector-orc1! (bitvector bitvector -> undefined))
 (define (bitvector-orc1! a b)
+  (assert-type 'bitvector-orc1! (bitvector? a))
+  (assert-type 'bitvector-orc1! (bitvector? b))
   (bitvector-map!/int u1-orc1 a b))
 
 (: u1-orc2 (fixnum fixnum --> fixnum))
@@ -127,9 +173,12 @@
 
 (: bitvector-orc2 (bitvector bitvector -> bitvector))
 (define (bitvector-orc2 a b)
+  (assert-type 'bitvector-orc2 (bitvector? a))
+  (assert-type 'bitvector-orc2 (bitvector? b))
   (bitvector-map/int u1-orc2 a b))
 
 (: bitvector-orc2! (bitvector bitvector -> undefined))
 (define (bitvector-orc2! a b)
+  (assert-type 'bitvector-orc2! (bitvector? a))
+  (assert-type 'bitvector-orc2! (bitvector? b))
   (bitvector-map!/int u1-orc2 a b))
-
