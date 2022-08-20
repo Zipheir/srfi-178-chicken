@@ -17,14 +17,14 @@
   (I (apply * args)))
 
 (: bitvector-and (#!rest bitvector -> bitvector))
-(define (bitvector-and  . vecs)
+(define (bitvector-and . vecs)
   (assert-type 'bitvector-and (every bitvector? vecs))
   (when (< (length vecs) 2)
     (arity-exception 'bitvector-and vecs))
   (apply bitvector-map/int u1-and vecs))
 
 (: bitvector-and! (#!rest bitvector -> undefined))
-(define (bitvector-and!  . vecs)
+(define (bitvector-and! . vecs)
   (assert-type 'bitvector-and! (every bitvector? vecs))
   (when (< (length vecs) 2)
     (arity-exception 'bitvector-and! vecs))
