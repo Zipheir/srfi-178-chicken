@@ -52,6 +52,9 @@
 
 (: bitvector-if (bitvector bitvector bitvector -> bitvector))
 (define (bitvector-if if-bvec then-bvec else-bvec)
+  (assert-type 'bitvector-if (bitvector? if-bvec))
+  (assert-type 'bitvector-if (bitvector? then-bvec))
+  (assert-type 'bitvector-if (bitvector? else-bvec))
   (bitvector-map/bool (lambda (bit then-bit else-bit)
                         (if bit then-bit else-bit))
                       if-bvec
