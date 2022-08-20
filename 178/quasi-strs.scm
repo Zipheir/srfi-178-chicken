@@ -8,8 +8,8 @@
         end
         (let lp ((i 0))
           (if (or (>= i end)
-                  (not (= (bitvector-ref/int bvec1 i)
-                          (bitvector-ref/int bvec2 i))))
+                  (not (= (%bitvector-ref/int-no-checks bvec1 i)
+                          (%bitvector-ref/int-no-checks bvec2 i))))
               i
               (lp (+ i 1)))))))
 
@@ -25,8 +25,8 @@
           delta
           (let lp ((i (- end1 1)) (j (- end2 1)))
             (if (or (< i start)
-                    (not (= (bitvector-ref/int bvec1 i)
-                            (bitvector-ref/int bvec2 j))))
+                    (not (= (%bitvector-ref/int-no-checks bvec1 i)
+                            (%bitvector-ref/int-no-checks bvec2 j))))
                 (- (- end1 i) 1)
                 (lp (- i 1) (- j 1))))))))
 
@@ -75,7 +75,7 @@
         (int (bit->integer bit)))
     (let lp ((i 0))
       (and (< i len)
-           (if (= int (bitvector-ref/int bvec i))
+           (if (= int (%bitvector-ref/int-no-checks bvec i))
                (lp (+ i 1))
                i)))))
 
@@ -85,7 +85,7 @@
         (int (bit->integer bit)))
     (let lp ((i (- len 1)))
       (and (>= i 0)
-           (if (= int (bitvector-ref/int bvec i))
+           (if (= int (%bitvector-ref/int-no-checks bvec i))
                (lp (- i 1))
                i)))))
 
