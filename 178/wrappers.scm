@@ -76,11 +76,21 @@
   (%check-index 'bitvector-ref/int bvec i)
   (u8vector-ref (U bvec) i))
 
+;; Fast version for internal use.
+(: %bitvector-ref/int-no-checks (bitvector integer -> integer))
+(define (%bitvector-ref/int-no-checks bvec i)
+  (u8vector-ref (U bvec) i))
+
 (: bitvector-ref/bool (bitvector integer -> boolean))
 (define (bitvector-ref/bool bvec i)
   (assert-type 'bitvector-ref/bool (bitvector? bvec))
   (assert-type 'bitvector-ref/bool (exact-integer? i))
   (%check-index 'bitvector-ref/bool bvec i)
+  (B (u8vector-ref (U bvec) i)))
+
+;; Fast version for internal use.
+(: %bitvector-ref/bool-no-checks (bitvector integer -> boolean))
+(define (%bitvector-ref/bool-no-checks bvec i)
   (B (u8vector-ref (U bvec) i)))
 
 (: bitvector-length (bitvector -> integer))

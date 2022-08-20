@@ -6,7 +6,7 @@
   (%check-range 'bitvector-field-any? bvec start end)
   (let lp ((i start))
     (and (< i end)
-         (or (bitvector-ref/bool bvec i)
+         (or (%bitvector-ref/bool-no-checks bvec i)
              (lp (+ i 1))))))
 
 (: bitvector-field-every? (bitvector integer integer -> boolean))
@@ -17,7 +17,7 @@
   (%check-range 'bitvector-field-every? bvec start end)
   (let lp ((i start))
     (or (>= i end)
-        (and (bitvector-ref/bool bvec i)
+        (and (%bitvector-ref/bool-no-checks bvec i)
              (lp (+ i 1))))))
 
 (define (%bitvector-field-modify bvec bit start end)
@@ -25,7 +25,7 @@
    (lambda (i)
      (if (and (>= i start) (< i end))
          bit
-         (bitvector-ref/int bvec i)))
+         (%bitvector-ref/int-no-checks bvec i)))
    (bitvector-length bvec)))
 
 (: bitvector-field-clear (bitvector integer integer -> bitvector))
@@ -76,8 +76,8 @@
   (%bitvector-unfold-no-checks
    (lambda (i)
      (if (and (>= i start) (< i end))
-         (bitvector-ref/int source (- i start))
-         (bitvector-ref/int dest i)))
+         (%bitvector-ref/int-no-checks source (- i start))
+         (%bitvector-ref/int-no-checks dest i)))
    (bitvector-length dest)))
 
 (: bitvector-field-replace!
@@ -102,10 +102,10 @@
   (%check-range 'bitvector-field-replace-same source start end)
   (%bitvector-unfold-no-checks
    (lambda (i)
-     (bitvector-ref/int (if (and (>= i start) (< i end))
-                            source
-                            dest)
-                        i))
+     (%bitvector-ref/int-no-checks (if (and (>= i start) (< i end))
+                                       source
+                                       dest)
+                                   i))
    (bitvector-length dest)))
 
 (: bitvector-field-replace-same!
@@ -132,10 +132,10 @@
         (%bitvector-unfold-no-checks
          (lambda (i)
            (if (and (>= i start) (< i end))
-               (bitvector-ref/int
+               (%bitvector-ref/int-no-checks
                 bvec
                 (+ start (floor-remainder (+ (- i start) count) field-len)))
-               (bitvector-ref/int bvec i)))
+               (%bitvector-ref/int-no-checks bvec i)))
          (bitvector-length bvec)))))
 
 (: bitvector-field-flip (bitvector integer integer -> bitvector))
@@ -147,8 +147,8 @@
   (%bitvector-unfold-no-checks
    (lambda (i)
      (I (if (and (>= i start) (< i end))
-            (not (bitvector-ref/bool bvec i))
-            (bitvector-ref/bool bvec i))))
+            (not (%bitvector-ref/bool-no-checks bvec i))
+            (%bitvector-ref/bool-no-checks bvec i))))
    (bitvector-length bvec)))
 
 (: bitvector-field-flip! (bitvector integer integer -> undefined))
@@ -159,6 +159,8 @@
   (%check-range 'bitvector-field-flip! bvec start end)
   (let lp ((i start))
     (unless (>= i end)
-      (bitvector-set! bvec i (not (bitvector-ref/bool bvec i)))
+      (bitvector-set! bvec
+                      i
+                      (not (%bitvector-ref/bool-no-checks bvec i)))
       (lp (+ i 1)))))
 

@@ -15,7 +15,7 @@
     (%bitvector-unfold-no-checks
      (lambda (i)
        (let ((i* (+ i count)))
-         (if (< i* len) (bitvector-ref/int bvec i*) bit)))
+         (if (< i* len) (%bitvector-ref/int-no-checks bvec i*) bit)))
      len)))
 
 (: %bitvector-right-shift (bitvector integer integer -> bitvector))
@@ -24,7 +24,7 @@
    (lambda (i)
      (if (< i count)
          bit
-         (bitvector-ref/int bvec (- i count))))
+         (%bitvector-ref/int-no-checks bvec (- i count))))
    (bitvector-length bvec)))
 
 (: bitvector-count (bit bitvector --> integer))
@@ -44,7 +44,8 @@
   (let ((int (I bit))
         (len (bitvector-length bvec)))
     (let lp ((i index) (c 0))
-      (if (or (>= i len) (not (= int (bitvector-ref/int bvec i))))
+      (if (or (>= i len)
+              (not (= int (%bitvector-ref/int-no-checks bvec i))))
           c
           (lp (+ i 1) (+ c 1))))))
 
@@ -63,6 +64,6 @@
   (let ((int (I bit)) (len (bitvector-length bvec)))
     (let lp ((i 0))
       (cond ((>= i len) -1)
-            ((= int (bitvector-ref/int bvec i)) i)
+            ((= int (%bitvector-ref/int-no-checks bvec i)) i)
             (else (lp (+ i 1)))))))
 

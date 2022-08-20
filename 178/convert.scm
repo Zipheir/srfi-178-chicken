@@ -18,7 +18,10 @@
     (if (< i 0)
       (list->string (cons #\# (cons #\* r)))
       (loop (- i 1)
-            (cons (if (bitvector-ref/bool bvec i) #\1 #\0) r)))))
+            (cons (if (%bitvector-ref/bool-no-checks bvec i)
+                      #\1
+                      #\0)
+                  r)))))
 
 (: string->bitvector (string -> (or bitvector false)))
 (define (string->bitvector str)
