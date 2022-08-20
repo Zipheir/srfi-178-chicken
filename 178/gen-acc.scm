@@ -11,12 +11,12 @@
 (: make-bitvector/int-generator (bitvector -> procedure))
 (define (make-bitvector/int-generator bvec)
   (assert-type 'make-bitvector/int-generator (bitvector? bvec))
-  (%make-bitvector-generator bvec bitvector-ref/int))
+  (%make-bitvector-generator bvec %bitvector-ref/int-no-checks))
 
 (: make-bitvector/bool-generator (bitvector -> procedure))
 (define (make-bitvector/bool-generator bvec)
   (assert-type 'make-bitvector/bool-generator (bitvector? bvec))
-  (%make-bitvector-generator bvec bitvector-ref/bool))
+  (%make-bitvector-generator bvec %bitvector-ref/bool-no-checks))
 
 (: make-bitvector-accumulator (-> procedure))
 (define (make-bitvector-accumulator)
