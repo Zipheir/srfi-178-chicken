@@ -12,7 +12,7 @@
 (: %bitvector-left-shift (bitvector integer integer -> bitvector))
 (define (%bitvector-left-shift bvec count bit)
   (let ((len (bitvector-length bvec)))
-    (bitvector-unfold
+    (%bitvector-unfold-no-checks
      (lambda (i)
        (let ((i* (+ i count)))
          (if (< i* len) (bitvector-ref/int bvec i*) bit)))
@@ -20,7 +20,7 @@
 
 (: %bitvector-right-shift (bitvector integer integer -> bitvector))
 (define (%bitvector-right-shift bvec count bit)
-  (bitvector-unfold
+  (%bitvector-unfold-no-checks
    (lambda (i)
      (if (< i count)
          bit

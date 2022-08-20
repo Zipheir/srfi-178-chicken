@@ -47,6 +47,30 @@
               (u8vector-set! res i (I b))
               (lp (+ i 1) seeds*))))))))
 
+;; Since several procedures are implemented in terms of
+;; bitvector-unfold, here's a zero-or-one-seed version
+;; with no checks.
+(: %bitvector-unfold-no-checks
+   (procedure fixnum #!optional * -> bitvector))
+(define %bitvector-unfold-no-checks
+  (case-lambda
+    ((f len)
+     (let ((res (make-u8vector len)))
+       (let lp ((i 0))
+         (if (= i len)
+             (W res)
+             (let ((b (f i)))
+               (u8vector-set! res i (I b))
+               (lp (+ i 1)))))))
+    ((f len seed)
+     (let ((res (make-u8vector len)))
+       (let lp ((i 0) (seed seed))
+         (if (= i len)
+             (W res)
+             (let-values (((b seed*) (f i seed)))
+               (u8vector-set! res i (I b))
+               (lp (+ i 1) seed*))))))))
+
 ;;;; unfold-right
 
 ;; Zero-seed fast path.

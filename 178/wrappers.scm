@@ -221,7 +221,7 @@
 (define (%bitvector-map2/int f bvec1 bvec2)
   (let ((u8vec1 (U bvec1))
         (u8vec2 (U bvec2)))
-    (bitvector-unfold
+    (%bitvector-unfold-no-checks
      (lambda (i)
        (f (u8vector-ref u8vec1 i) (u8vector-ref u8vec2 i)))
      (bitvector-length bvec1))))

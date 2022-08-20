@@ -29,7 +29,7 @@
        (> (string-length str) 1)
        (char=? (string-ref str 0) #\#)
        (char=? (string-ref str 1) #\*)
-       (bitvector-unfold
+       (%bitvector-unfold-no-checks
         (lambda (ri si)
           (case (string-ref str si)
             ((#\0) (values 0 (+ si 1)))
@@ -52,7 +52,7 @@
     ((int len)
      (assert-type 'integer->bitvector (exact-natural? int))
      (assert-type 'integer->bitvector (exact-natural? len))
-     (bitvector-unfold
+     (%bitvector-unfold-no-checks
       (lambda (_ int)
         (values (bit-set? 0 int) (arithmetic-shift int -1)))
       len
@@ -76,7 +76,7 @@
                          start
                          end
                          vec))
-     (bitvector-unfold
+     (%bitvector-unfold-no-checks
       (lambda (i)
         (vector-ref vec (- end 1 i)))
       (- end start)))))

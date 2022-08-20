@@ -21,7 +21,7 @@
              (lp (+ i 1))))))
 
 (define (%bitvector-field-modify bvec bit start end)
-  (bitvector-unfold
+  (%bitvector-unfold-no-checks
    (lambda (i)
      (if (and (>= i start) (< i end))
          bit
@@ -73,7 +73,7 @@
   (assert-type 'bitvector-field-replace (exact-integer? end))
   (%check-range 'bitvector-field-replace dest start end)
   (%check-range 'bitvector-field-replace source 0 (- end start))
-  (bitvector-unfold
+  (%bitvector-unfold-no-checks
    (lambda (i)
      (if (and (>= i start) (< i end))
          (bitvector-ref/int source (- i start))
@@ -100,7 +100,7 @@
   (assert-type 'bitvector-field-replace-same (exact-integer? end))
   (%check-range 'bitvector-field-replace-same dest start end)
   (%check-range 'bitvector-field-replace-same source start end)
-  (bitvector-unfold
+  (%bitvector-unfold-no-checks
    (lambda (i)
      (bitvector-ref/int (if (and (>= i start) (< i end))
                             source
@@ -129,7 +129,7 @@
   (if (zero? count)
       bvec
       (let ((field-len (- end start)))
-        (bitvector-unfold
+        (%bitvector-unfold-no-checks
          (lambda (i)
            (if (and (>= i start) (< i end))
                (bitvector-ref/int
@@ -144,7 +144,7 @@
   (assert-type 'bitvector-field-flip (exact-integer? start))
   (assert-type 'bitvector-field-flip (exact-integer? end))
   (%check-range 'bitvector-field-flip bvec start end)
-  (bitvector-unfold
+  (%bitvector-unfold-no-checks
    (lambda (i)
      (I (if (and (>= i start) (< i end))
             (not (bitvector-ref/bool bvec i))
