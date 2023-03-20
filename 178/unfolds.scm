@@ -1,51 +1,34 @@
 ;;;; unfold
 
-;; Zero-seed fast path.
-(: %bitvector-tabulate ((integer -> integer) integer -> bitvector))
-(define (%bitvector-tabulate f len)
-  (let ((res (make-u8vector len)))
-    (let lp ((i 0))
-      (cond ((= i len) (W res))
-            (else
-             (let ((b (f i)))
-               (assert-type 'bitvector-unfold (%bit? b))
-               (u8vector-set! res i (I b))
-               (lp (+ i 1))))))))
+;;; These procedures work by building temporary lists, then converting
+;;; them to vectors. This uses more space than pre-allocating a bitvector
+;;; and filling it, but it's referentially transparent: there's no way
+;;; to capture a partially-filled bitvector through continuation tricks.
 
-;; One-seed fast path.
-(: %bitvector-unfold-1 (procedure integer * -> bitvector))
-(define (%bitvector-unfold-1 f len seed)
-  (let ((res (make-u8vector len)))
-    (let lp ((i 0) (seed seed))
-      (if (= i len)
-          (W res)
-          (let-values (((b seed*) (f i seed)))
-            (assert-type 'bitvector-unfold (%bit? b))
-            (u8vector-set! res i (I b))
-            (lp (+ i 1) seed*))))))
+;; Unfold a list. f is passed the current index and list of seeds
+;; on each step, and must return a bit and new seeds on each step.
+(define (%unfold/index f len seeds)
+  (letrec
+   ((build
+     (lambda (i seeds)
+       (if (= i len)
+           '()
+           (let-values (((b . seeds*) (apply f i seeds)))
+             (cons b (build (+ i 1) seeds*)))))))
+
+    (build 0 seeds)))
 
 (: bitvector-unfold (procedure integer #!rest * -> bitvector))
 (define bitvector-unfold
   (case-lambda
-   ((f len)
-    (assert-type 'bitvector-unfold (procedure? f))
-    (assert-type 'bitvector-unfold (exact-natural? len))
-    (%bitvector-tabulate f len))
-   ((f len seed)
-    (assert-type 'bitvector-unfold (procedure? f))
-    (assert-type 'bitvector-unfold (exact-natural? len))
-    (%bitvector-unfold-1 f len seed))
-   ((f len . seeds)
-    (assert-type 'bitvector-unfold (procedure? f))
-    (assert-type 'bitvector-unfold (exact-natural? len))
-    (let ((res (make-u8vector len)))
-      (let lp ((i 0) (seeds seeds))
-        (if (= i len)
-            (W res)
-            (let-values (((b . seeds*) (apply f i seeds)))
-              (assert-type 'bitvector-unfold (%bit? b))
-              (u8vector-set! res i (I b))
-              (lp (+ i 1) seeds*))))))))
+    ((f len)
+     (assert-type 'bitvector-unfold (procedure? f))
+     (assert-type 'bitvector-unfold (exact-natural? len))
+     (list->bitvector (list-tabulate len f)))
+    ((f len seed . rest)
+     (assert-type 'bitvector-unfold (procedure? f))
+     (assert-type 'bitvector-unfold (exact-natural? len))
+     (list->bitvector (%unfold/index f len (cons seed rest))))))
 
 ;; Since several procedures are implemented in terms of
 ;; bitvector-unfold, here's a zero-or-one-seed version
@@ -54,68 +37,36 @@
    (procedure fixnum #!optional * -> bitvector))
 (define %bitvector-unfold-no-checks
   (case-lambda
-    ((f len)
-     (let ((res (make-u8vector len)))
-       (let lp ((i 0))
-         (if (= i len)
-             (W res)
-             (let ((b (f i)))
-               (u8vector-set! res i (I b))
-               (lp (+ i 1)))))))
+    ((f len) (list->bitvector (list-tabulate len f)))
     ((f len seed)
-     (let ((res (make-u8vector len)))
-       (let lp ((i 0) (seed seed))
-         (if (= i len)
-             (W res)
-             (let-values (((b seed*) (f i seed)))
-               (u8vector-set! res i (I b))
-               (lp (+ i 1) seed*))))))))
+     (letrec
+      ((build
+        (lambda (i seed)
+          (if (= i len)
+              '()
+              (let-values (((b seed*) (f i seed)))
+                (cons b (build (+ i 1) seed*)))))))
+
+       (list->bitvector (build 0 seed))))))
 
 ;;;; unfold-right
 
-;; Zero-seed fast path.
-(: %bitvector-tabulate-right ((integer -> integer) integer -> bitvector))
-(define (%bitvector-tabulate-right f len)
-  (let ((res (make-u8vector len)))
-    (let lp ((i (- len 1)))
-      (cond ((< i 0) (W res))
-            (else
-             (let ((b (f i)))
-               (assert-type 'bitvector-unfold-right (%bit? b))
-               (u8vector-set! res i (I b))
-               (lp (- i 1))))))))
+;; Unfold a list from the right. f is passed the current index and
+;; list of seeds on each step, and must return a bit and new seeds
+;; on each step.
+(define (%unfold-right/index f len seeds)
+  (letrec
+   ((build
+     (lambda (i seeds res)
+       (if (< i 0)
+           res
+           (let-values (((b . seeds*) (apply f i seeds)))
+             (build (- i 1) seeds* (cons b res)))))))
 
-;; One-seed fast path.
-(: %bitvector-unfold-1-right (procedure integer * -> bitvector))
-(define (%bitvector-unfold-1-right f len seed)
-  (let ((result (make-u8vector len)))
-    (let lp ((i (- len 1)) (seed seed))
-      (if (< i 0)
-          (W result)
-          (let-values (((b seed*) (f i seed)))
-            (assert-type 'bitvector-unfold-right (%bit? b))
-            (u8vector-set! result i (I b))
-            (lp (- i 1) seed*))))))
+    (build (- len 1) seeds '())))
 
 (: bitvector-unfold-right (procedure integer #!rest * -> bitvector))
-(define bitvector-unfold-right
-  (case-lambda
-   ((f len)
-    (assert-type 'bitvector-unfold-right (procedure? f))
-    (assert-type 'bitvector-unfold-right (exact-natural? len))
-    (%bitvector-tabulate-right f len))
-   ((f len seed)
-    (assert-type 'bitvector-unfold-right (procedure? f))
-    (assert-type 'bitvector-unfold-right (exact-natural? len))
-    (%bitvector-unfold-1-right f len seed))
-   ((f len . seeds)
-    (assert-type 'bitvector-unfold-right (procedure? f))
-    (assert-type 'bitvector-unfold-right (exact-natural? len))
-    (let ((res (make-u8vector len)))
-      (let lp ((i (- len 1)) (seeds seeds))
-        (if (< i 0)
-            (W res)
-            (let-values (((b . seeds*) (apply f i seeds)))
-              (assert-type 'bitvector-unfold-right (%bit? b))
-              (u8vector-set! res i (I b))
-              (lp (- i 1) seeds*))))))))
+(define (bitvector-unfold-right f len . seeds)
+  (assert-type 'bitvector-unfold-right (procedure? f))
+  (assert-type 'bitvector-unfold-right (exact-natural? len))
+  (list->bitvector (%unfold-right/index f len seeds)))

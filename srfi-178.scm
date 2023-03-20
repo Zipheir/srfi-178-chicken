@@ -88,6 +88,18 @@
               (else (vector-set! res i (f i))
                     (lp (+ i 1)))))))
 
+  ;; SRFI 1 shim
+  (: list-tabulate (fixnum procedure -> list))
+  (define (list-tabulate len f)
+    (letrec
+     ((build
+       (lambda (i)
+         (if (= i len)
+             '()
+             (cons (f i) (build (+ i 1)))))))
+
+      (build 0)))
+
   (define-type bit (or boolean fixnum))
   
   (define-syntax assert-type
