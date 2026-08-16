@@ -71,11 +71,11 @@
    bitvector-field-replace bitvector-field-replace!
    )
 
-  (import (scheme)
+  (import (scheme base)
+          (scheme case-lambda)
           (chicken base)
           (chicken type)
           (chicken condition)
-          (only (srfi 141) floor-remainder)
           (srfi 151)
           (srfi 160 base) ; temporary
           (srfi 160 u8))
@@ -147,7 +147,6 @@
                         end
                         bvec)))
 
-  (include "r7rs-shim.scm")
   (include "178/util.scm")
   (include "178/macros.scm")
   (include "178/convert.scm")
