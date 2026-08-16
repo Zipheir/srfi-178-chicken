@@ -462,7 +462,9 @@ See the [[Module (chicken condition)]] page for more information.
 
 === Dependencies
 
-The [[srfi-160]], [[srfi-141]], and [[srfi-151]] eggs are required.
+The [[srfi-160]] and [[srfi-151]] eggs are required.
+
+The [[test]] egg is required to run the included tests.
 
 === Maintainer
 
@@ -478,6 +480,7 @@ Wolfgang Corcoran-Mathe <wcm at sigwinch dot xyzzy without the zy>
 ; 0.2 : Add types, use [[test]] for testing.
 ; 1.0.1 : (2022-08-20) Improve type, arity, and bounds checks. Follow CHICKEN's internal condition protocol.
 ; 1.0.2 : (2023-03-20) Improve referential transparency of {{bitvector-unfold}}.
+; 1.1.0 : (2026-08-16) Port to CHICKEN 6.
 
 == License
 
