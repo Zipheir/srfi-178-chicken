@@ -1,0 +1,503 @@
+== SRFI-178: Bitvector library
+
+This SRFI describes a set of operations on homogeneous bitvectors. Operations
+analogous to those provided on the other homogeneous vector types described in
+[[https://srfi.schemers.org/srfi-160|SRFI 160]] are provided,
+along with operations analogous to the bitwise operations of
+[[https://srfi.schemers.org/srfi-151|SRFI 151]].
+
+Bitvectors are implemented as wrapped [[srfi-160]] u8vectors; for
+simplicity and possibly for speed, they use a whole byte to represent each
+bit, as Java and C# do.
+
+[[toc:]]
+
+== SRFI Description
+
+This page includes excerpts from the SRFI document, but is primarily
+intended to document the forms exported by this egg.  For a full
+description of the SRFI, see the full
+[[https://srfi.schemers.org/srfi-178/srfi-178.html|SRFI document]].
+
+== Authors
+
+John Cowan (text) and Wolfgang Corcoran-Mathe (implementation)
+
+== Specification
+
+Bitvectors are disjoint from all other Scheme types with the possible
+exception of u1vectors, if the Scheme implementation supports them.
+
+The procedures of this SRFI that accept single bits or lists of bits can be
+passed any of the values {{0, 1, #f, #t}}. Procedures that return a bit or a
+list of bits come in two flavors: one ending in {{/int}} that returns an exact
+integer, and one ending in {{/bool}} that returns a boolean.
+
+Mapping and folding procedures also come in two flavors: those ending in
+{{/int}} pass exact integers to their procedure arguments, whereas those ending
+in {{/bool}} pass booleans to theirs.
+
+Procedures whose names end in {{!}} are the same as the corresponding procedures
+without {{!}}, except that the first bitvector argument is mutated and an
+unspecified result is returned. Consequently, only the non-{{!}} version is
+documented below.
+
+It is an error unless all ''bitvector'' arguments passed to procedures that
+accept more than one are of the same length (except as otherwise noted).
+
+== Notation
+
+In the section containing specifications of procedures, the following notation
+is used to specify parameters and return values:
+
+; ''(f arg₁ arg₂ ...)'' → ''something'' : A procedure ''f'' that takes the parameters ''arg₁ arg₂ ...'' and returns a value of the type ''something''. If two values are returned, two types are specified. If ''something'' is {{unspecified}}, then ''f'' returns a single implementation-dependent value; this SRFI does not specify what it returns, and in order to write portable code, the return value should be ignored.
+; ''vec'' : A heterogeneous vector; that is, it must satisfy the predicate {{vector?}}.
+; ''bvec, to, from'' : A bitvector, i.e. it must satisfy the predicate {{bitvector?}}. In {{bitvector-copy!}} and {{reverse-bitvector-copy!}}, ''to'' is the destination and ''from'' is the source.
+; ''i, j, start, at'' : An exact nonnegative integer less than the length of the bitvector. In {{bitvector-copy!}} and {{reverse-bitvector-copy!}}, ''at'' refers to the destination and ''start'' to the source.
+; ''end'' : An exact nonnegative integer not less than ''start''. This indicates the index directly before which traversal will stop--processing will occur until the index of the vector is one less than ''end''. It is the open right side of a range.
+; ''f'' : A procedure taking one or more arguments, which returns (except as noted otherwise) exactly one value.
+; ''='' : An equivalence procedure.
+; ''obj, seed, knil'' : Any Scheme object.
+; ''[something]'' : An optional argument; it needn't necessarily be applied. ''Something'' needn't necessarily be one thing; for example, this usage of it is perfectly valid: {{[start [end]]}} and is indeed used quite often.
+; ''something ...'' : Zero or more {{something}}s are allowed to be arguments.
+; ''something₁ something₂ ...'' : One or more {{something}}s must be arguments.
+
+All procedures that return bitvectors, vectors, or lists newly allocate their
+results, except those that end in {{!}}. However, a zero-length value need not
+be separately allocated.
+
+Except as otherwise noted, the semantics of each procedure are those of the
+corresponding SRFI 133 or SRFI 151 procedure.
+
+== Procedures
+
+=== Bit conversion
+
+<procedure>(bit->integer bit) → exact integer</procedure>
+
+Returns 0 if ''bit'' is 0 or {{#f}} and 1 if ''bit'' is 1 or {{#t}}.
+
+<procedure>(bit->boolean bit) → boolean</procedure>
+
+Returns {{#f}} if ''bit'' is 0 or {{#f}} and {{#t}} if ''bit'' is 1 or {{#t}}.
+
+=== Constructors
+
+<procedure>(make-bitvector size [bit]) → bitvector </procedure>
+
+Returns a bitvector whose length is ''size''. If ''bit'' is provided, all the
+elements of the bitvector are initialized to it.
+
+<procedure>(bitvector value ...) → bitvector </procedure>
+
+Returns a bitvector initialized with ''values''.
+
+<procedure>(bitvector-unfold f length seed ...) → bitvector</procedure>
+
+Creates a vector whose length is ''length'' and iterates across each index ''k''
+between 0 and ''length'', applying ''f'' at each iteration to the current index
+and current states, in that order, to receive ''n'' + 1 values: the bit to put in
+the ''k''th slot of the new vector and new states for the next iteration. On the
+first call to ''f'', the states' values are the ''seeds''.
+
+<procedure>(bitvector-unfold-right f length seed) → bitvector</procedure>
+
+The same as {{bitvector-unfold}}, but initializes the bitvector from right to
+left.
+
+<procedure>(bitvector-copy bvec [start [end]]) → bitvector</procedure>
+
+Makes a copy of the portion of ''bvec'' from ''start'' to ''end'' and returns it.
+
+<procedure>(bitvector-reverse-copy bvec [start [end]]) → bitvector</procedure>
+
+The same as {{bitvector-copy}}, but in reverse order.
+
+<procedure>(bitvector-append bvec ...) → bitvector</procedure>
+
+Returns a bitvector containing all the elements of the ''bvecs'' in order.
+
+<procedure> (bitvector-concatenate list-of-bitvectors) → bitvector</procedure>
+
+The same as {{bitvector-append}}, but takes a list of bitvectors rather than
+multiple arguments.
+
+<procedure>(bitvector-append-subbitvectors [bvec start end] ...) → bitvector</procedure>
+
+Concatenates the result of applying {{bitvector-copy}} to each triplet of
+''bvec, start, end'' arguments, but may be implemented more efficiently.
+
+=== Predicates
+
+<procedure>(bitvector? obj) → boolean</procedure>
+
+Returns {{#t}} if ''obj'' is a bitvector, and {{#f}} otherwise.
+
+<procedure>(bitvector-empty? bvec) → boolean</procedure>
+
+Returns {{#t}} if ''bvec'' has a length of zero, and {{#f}} otherwise.
+
+<procedure>(bitvector=? bvec ...) → boolean</procedure>
+
+Compares the ''bvecs'' for element-wise equality, using {{eqv?}} to do the
+comparisons, and returns {{#t}} or {{#f}} accordingly.
+
+=== Selectors
+
+<procedure>(bitvector-ref/int bvec i) → integer</procedure>
+<procedure>(bitvector-ref/bool bvec i) → boolean</procedure>
+
+Returns the ''i''th element of ''bvec'' as an exact integer or boolean
+respectively.
+
+<procedure>(bitvector-length bvec) → exact nonnegative integer</procedure>
+
+Returns the length of ''bvec''.
+
+=== Iteration
+
+<procedure>(bitvector-take bvec n) → bitvector</procedure>
+
+<procedure>(bitvector-take-right bvec n) → bitvector</procedure>
+
+Returns a bitvector containing the first/last ''n'' elements of ''bvec''.
+
+<procedure>(bitvector-drop bvec n) → bitvector</procedure>
+
+<procedure>(bitvector-drop-right bvec n) → bitvector</procedure>
+
+Returns a bitvector containing all except the first/last ''n'' elements
+of ''bvec''.
+
+<procedure>(bitvector-segment bvec n) → list</procedure>
+
+Returns a list of bitvectors, each of which contains ''n'' consecutive
+elements of ''bvec''. The last bitvector may be shorter than ''n''.
+If ''n'' is not an exact positive integer, an exception is raised.
+
+<procedure>(bitvector-fold/int kons knil bvec1 bvec2 ...) → object</procedure>
+<procedure>(bitvector-fold/bool kons knil bvec1 bvec2 ...) → object</procedure>
+<procedure>(bitvector-fold-right/int kons knil bvec1 bvec2 ...) → object</procedure>
+<procedure>(bitvector-fold-right/bool kons knil bvec1 bvec2 ...) → object</procedure>
+
+Folds ''kons'' over the elements of ''bvec'' in increasing/decreasing order using
+''knil'' as the initial value. The kons procedure is called with the states
+first and the new element last, as in SRFIs 43, 133, and 160.
+
+<procedure>(bitvector-map/int f bvec1 bvec2 ...) → bitvector</procedure>
+<procedure>(bitvector-map/bool f bvec1 bvec2 ...) → bitvector</procedure>
+<procedure>(bitvector-map!/int f bvec1 bvec2 ...) → unspecified</procedure>
+<procedure>(bitvector-map!/bool f bvec1 bvec2 ...) → unspecified</procedure>
+<procedure>(bitvector-map->list/int f bvec1 bvec2 ...) → list</procedure>
+<procedure>(bitvector-map->list/bool f bvec1 bvec2 ...) → list</procedure>
+<procedure>(bitvector-for-each/int f bvec1 bvec2 ...) → unspecified</procedure>
+<procedure>(bitvector-for-each/bool f bvec1 bvec2 ...) → unspecified</procedure>
+
+Iterate over the corresponding elements of the ''bvecs'' and apply ''f'' to each,
+returning respectively: a bitvector of the results, an undefined value with
+the results placed back in ''bvec1'', a list of the results, and an undefined
+value with no change to ''bvec1''.
+
+=== Prefixes, suffixes, trimming, padding
+
+<procedure>(bitvector-prefix-length bvec1 bvec2) → index</procedure>
+<procedure>(bitvector-suffix-length bvec1 bvec2) → index</procedure>
+
+Return the number of elements that are equal in the prefix/suffix of the two
+''bvecs'', which are allowed to be of different lengths.
+
+<procedure>(bitvector-prefix? bvec1 bvec2) → boolean</procedure>
+
+<procedure>(bitvector-suffix? bvec1 bvec2) → boolean</procedure>
+
+Returns {{#t}} if ''bvec1'' is a prefix/suffix of ''bvec2'', and {{#f}}
+otherwise. The arguments are allowed to be of different lengths.
+
+<procedure>(bitvector-pad  bit bvec length) → bvec</procedure>
+<procedure>(bitvector-pad-right  bit bvec length) → bvec</procedure>
+
+Returns a copy of ''bvec'' with leading/trailing elements equal to
+''bit'' added (if necessary) so that the length of the result is ''length''.
+
+<procedure>(bitvector-trim bit bvec) → bvec</procedure>
+<procedure>(bitvector-trim-right bit bvec) → bvec</procedure>
+<procedure>(bitvector-trim-both bit bvec) → bvec</procedure>
+
+Returns a copy of ''bvec'' with leading/trailing/both elements equal
+to ''bit'' removed.
+
+=== Mutators
+
+<procedure>(bitvector-set! bvec i bit) → unspecified</procedure>
+
+Sets the ''i''th element of ''bvec'' to ''bit''.
+
+<procedure>(bitvector-swap! bvec i j) → unspecified</procedure>
+
+Interchanges the ''i''th and ''j''th elements of ''bvec''.
+
+<procedure>(bitvector-reverse! bvec [start [end]]) → unspecified</procedure>
+
+Reverses the portion of ''bvec'' from ''start'' to ''end''.
+
+<procedure>(bitvector-copy! to at from [start [end]]) → unspecified</procedure>
+
+Copies the portion of ''from'' from ''start'' to ''end'' onto ''to'',
+starting at index ''at''.
+
+<procedure>(bitvector-reverse-copy! to at from [start [end]]) → unspecified</procedure>
+
+The same as {{bitvector-copy!}}, but copies in reverse.
+
+=== Conversion
+
+<procedure>(bitvector->list/int bvec [start [end]]) → list of integers</procedure>
+<procedure>(bitvector->list/bool bvec [start [end]]) → list of booleans</procedure>
+
+<procedure>(reverse-bitvector->list/int bvec [start [end]]) → list of integers</procedure>
+<procedure>(reverse-bitvector->list/bool bvec [start [end]]) → list of booleans</procedure>
+
+<procedure>(list->bitvector list) → bitvector</procedure>
+<procedure>(reverse-list->bitvector list) → bitvector</procedure>
+
+<procedure>(bitvector->vector/int bvec [start [end]]) → vector of integers</procedure>
+<procedure>(bitvector->vector/bool bvec [start [end]]) → vector of booleans</procedure>
+
+<procedure>(reverse-bitvector->vector/int bvec [start [end]]) → vector of integers</procedure>
+<procedure>(reverse-bitvector->vector/bool bvec [start [end]]) → vector of booleans</procedure>
+<procedure>(vector->bitvector vec [start [end]]) → bitvector</procedure>
+<procedure>(reverse-vector->bitvector vec [start [end]]) → bitvector</procedure>
+
+Returns a list, bitvector, or heterogeneous vector with the same
+elements as the argument, in reverse order where specified.
+
+<procedure>(bitvector->string bvec) → string</procedure>
+
+Returns a string beginning with "#*" and followed by the values of ''bvec''
+represented as 0 and 1 characters. This is the Common Lisp representation of a
+bitvector.
+
+<procedure>(string->bitvector string) → bitvector</procedure>
+
+Parses a string in the format generated by {{bitvector->string}} and returns the
+corresponding bitvector, or {{#f}} if the string is not in this format.
+
+<procedure>(bitvector->integer bitvector)</procedure>
+
+Returns a non-negative exact integer whose bits, starting with the least
+significant bit as bit 0, correspond to the values in ''bitvector''. This
+ensures compatibility with the integers-as-bits operations of
+[[https://srfi.schemers.org/srfi-151/srfi-151.html|SRFI 151]].
+
+<procedure>(integer->bitvector integer [len])</procedure>
+
+Returns a bitvector whose length is ''len'' whose values correspond to the bits
+of ''integer'', a non-negative exact integer, starting with the least
+significant bit as bit 0. This ensures compatibility with the integers-as-bits
+operations of [[https://srfi.schemers.org/srfi-151/srfi-151.html|SRFI 151]].
+
+The default value of ''len'' is {{(integer-length}} ''integer''{{)}}.
+If the value of ''len'' is less than the default, the resulting bitvector
+cannot be converted back by {{bitvector->integer}} correctly.
+
+=== Generators
+
+<procedure>(make-bitvector/int-generator bitvector)</procedure>
+<procedure>(make-bitvector/bool-generator bitvector)</procedure>
+
+Returns a [[srfi-158]]
+generator that generates all the values of ''bitvector'' in order. Note that the
+generator is finite.
+
+<procedure>(make-bitvector-accumulator)</procedure>
+
+Returns a [[srfi-158]]
+accumulator that collects all the bits it is invoked on. When invoked on an
+end-of-file object, returns a bitvector containing all the bits in order.
+
+=== Basic operations
+
+<procedure>(bitvector-not bvec)</procedure>
+<procedure>(bitvector-not! bvec)</procedure>
+
+Returns the element-wise complement of ''bvec''; that is, each value is changed
+to the opposite value.
+
+The following ten procedures correspond to the useful set of non-trivial
+two-argument boolean functions. For each such function, the corresponding
+bitvector operator maps that function across two or more bitvectors in an
+element-wise fashion. The core idea of this group of functions is this
+element-wise "lifting" of the set of dyadic boolean functions to bitvector
+parameters.
+
+<procedure>(bitvector-and bvec1 bvec2 bvec ...)</procedure>
+<procedure>(bitvector-and! bvec1 bvec2 bvec ...)</procedure>
+<procedure>(bitvector-ior bvec1 bvec2 bvec ...)</procedure>
+<procedure>(bitvector-ior! bvec1 bvec2 bvec ...)</procedure>
+<procedure>(bitvector-xor bvec1 bvec2 bvec ...)</procedure>
+<procedure>(bitvector-xor! bvec1 bvec2 bvec ...)</procedure>
+<procedure>(bitvector-eqv bvec1 bvec2 bvec ...)</procedure>
+<procedure>(bitvector-eqv! bvec1 bvec2 bvec ...)</procedure>
+
+These operations are associative.
+
+The {{bitvector-eqv}} procedure produces the complement of the {{bitvector-xor}}
+procedure. When applied to three arguments, it does ''not'' produce a {{#t}} value
+everywhere that a, b and c all agree. That is, it does ''not'' produce
+
+<enscript highlight="scheme">
+(bitvector-ior (bitvector-and a b c)
+               (bitvector-and (bitvector-not a)
+                              (bitvector-not b)
+                              (bitvector-not c)))
+</enscript>
+
+Rather, it produces {{(bitvector-eqv a (bitvector-eqv b c))}} or the equivalent
+{{(bitvector-eqv (bitvector-eqv a b) c)}}.
+
+<procedure>(bitvector-nand bvec1 bvec2)</procedure>
+<procedure>(bitvector-nand! bvec1 bvec2)</procedure>
+<procedure>(bitvector-nor bvec1 bvec2)</procedure>
+<procedure>(bitvector-nor! bvec1 bvec2)</procedure>
+<procedure>(bitvector-andc1 bvec1 bvec2)</procedure>
+<procedure>(bitvector-andc1! bvec1 bvec2)</procedure>
+<procedure>(bitvector-andc2 bvec1 bvec2)</procedure>
+<procedure>(bitvector-andc2! bvec1 bvec2)</procedure>
+<procedure>(bitvector-orc1 bvec1 bvec2)</procedure>
+<procedure>(bitvector-orc1! bvec1 bvec2)</procedure>
+<procedure>(bitvector-orc2 bvec1 bvec2)</procedure>
+<procedure>(bitvector-orc2! bvec1 bvec2)</procedure>
+
+These operations are not associative.
+
+=== Quasi-integer operations
+
+<procedure>(bitvector-logical-shift bvec count bit)</procedure>
+
+Returns a bitvector equal in length to ''bvec'' containing the logical left
+shift (toward lower indices) when ''count'' ≥ 0 or the right shift (toward upper
+indices) when ''count'' < 0. Newly vacated elements are filled with ''bit''.
+
+<procedure>(bitvector-count bit bvec)</procedure>
+
+Returns the number of ''bit'' values in ''bvec''.
+
+<procedure>(bitvector-count-run bit bvec i)</procedure>
+
+Returns the number of consecutive ''bit'' values in ''bvec'', starting at
+index ''i''.
+
+<procedure>(bitvector-if if-bitvector then-bitvector else-bitvector)</procedure>
+
+Returns a bitvector that merges the bitvectors ''then-bitvector'' and ''else-
+bitvector'', with the bitvector ''if-bitvector'' determining from which bitvector
+to take each value. That is, if the ''k''th value of ''if-bitvector'' is {{#t}} (or
+1, depending in how you look at it), then the ''k''th bit of the result is the
+''k''th bit of ''then-bitvector'', otherwise the ''k''th bit of ''else-bitvector''.
+
+<procedure>(bitvector-first-bit bit bvec)</procedure>
+
+Returns the index of the first (smallest index) ''bit'' value in ''bvec''.
+Returns -1 if ''bvec'' contains no values equal to ''bit''.
+
+=== Bit field operations
+
+These procedures operate on a contiguous field of bits (a "byte" in Common
+Lisp parlance) in a given bitvector. The ''start'' and ''end'' arguments, which
+are not optional, are non-negative exact integers specifying the field: it is
+the ''end'' − ''start'' bits running from bit ''start'' to bit ''end'' − 1.
+
+<procedure>(bitvector-field-any? bvec start end)</procedure>
+
+Returns {{#t}} if any of the field's bits are set in ''bvec'', and {{#f}} otherwise.
+
+<procedure>(bitvector-field-every? bvec start end)</procedure>
+
+Returns {{#f}} if any of the field's bits are not set in ''bvec'', and {{#t}}
+otherwise.
+
+<procedure>(bitvector-field-clear bvec start end)</procedure>
+<procedure>(bitvector-field-clear! bvec start end)</procedure>
+<procedure>(bitvector-field-set bvec start end)</procedure>
+<procedure>(bitvector-field-set! bvec start end)</procedure>
+
+Returns a bitvector containing ''bvec'' with the field's bits set appropriately.
+
+<procedure>(bitvector-field-replace dest source start end)</procedure>
+<procedure>(bitvector-field-replace! dest source start end)</procedure>
+
+Returns a bitvector containing ''dest'' with the field replaced by the first
+''end-start'' bits in ''source''.
+
+<procedure>(bitvector-field-replace-same dest source start end)</procedure>
+<procedure>(bitvector-field-replace-same! dest source start end)</procedure>
+
+Returns a bitvector containing ''dest'' with its field replaced by the
+corresponding field in ''source''.
+
+<procedure>(bitvector-field-rotate bvec count start end)</procedure>
+
+Returns ''bvec'' with the field cyclically permuted by ''count'' bits towards
+higher indices when ''count'' is negative, and toward lower indices otherwise.
+
+<procedure>(bitvector-field-flip bvec start end)</procedure>
+<procedure>(bitvector-field-flip! bvec start end)</procedure>
+
+Returns ''bvec'' with the bits in the field flipped: that is, each value is
+replaced by the opposite value. There is no SRFI 151 equivalent.
+
+== Exceptions
+
+This egg tries to give useful information when things go wrong.
+Procedure arguments are type-checked; when a type check fails, a
+condition of kind {{(exn type assertion)}} is raised.  When a
+procedure is passed the wrong number of arguments, an
+{{(exn arity assertion)}} condition is raised, and bitvector bounds errors
+are signaled by {{(exn bounds assertion)}} conditions.  This
+conforms to the condition protocol used by CHICKEN's internal libraries.
+
+See the [[Module (chicken condition)]] page for more information.
+
+== About This Egg
+
+=== Dependencies
+
+The [[srfi-160]], [[srfi-141]], and [[srfi-151]] eggs are required.
+
+=== Maintainer
+
+Wolfgang Corcoran-Mathe <wcm at sigwinch dot xyzzy without the zy>
+
+=== Repository
+
+[[https://github.com/Zipheir/srfi-178-chicken|GitHub]]
+
+=== Version History
+
+; 0.1 : Initial release.
+; 0.2 : Add types, use [[test]] for testing.
+; 1.0.1 : (2022-08-20) Improve type, arity, and bounds checks. Follow CHICKEN's internal condition protocol.
+; 1.0.2 : (2023-03-20) Improve referential transparency of {{bitvector-unfold}}.
+
+== License
+
+(C) 2018 John Cowan, 2020 Wolfgang Corcoran-Mathe
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice (including the next
+paragraph) shall be included in all copies or substantial portions of the
+Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
